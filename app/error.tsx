@@ -10,7 +10,7 @@ export default function ErrorPage({ error, reset }: ErrorProps) {
 
   return (
     <div>
-      <h1>Something wsent wrong!</h1> <h1>Something went wrong!</h1>{" "}
+      <h1>Something went wrong!</h1> <h1>Something went wrong!</h1>{" "}
       <h1>Something went wrong!</h1> <h1>Something went wrong!</h1>{" "}
       <h1>Something went wrong!</h1> <h1>Something went wrong!</h1>{" "}
       <h1>Something went wrong!</h1> <h1>Something went wrong!</h1>{" "}
