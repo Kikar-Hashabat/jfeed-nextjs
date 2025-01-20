@@ -50,9 +50,9 @@ export function AsideSection({ articles, title }: AsideSectionProps) {
                         {article.roofTitle}
                       </span>
                     )}
-                    <h4 className="text-base leading-snug group-hover:text-red-500">
+                    <h3 className="text-base leading-snug group-hover:text-red-500">
                       {article.titleShort || article.title}
-                    </h4>
+                    </h3>
                     <div className="text-sm text-gray-500 mt-1 flex items-center gap-1">
                       {article.comments > 0 && (
                         <div className="flex items-center gap-1">

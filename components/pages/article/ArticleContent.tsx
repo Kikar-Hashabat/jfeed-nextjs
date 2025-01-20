@@ -5,7 +5,7 @@ import VideoBlock from "./blocks/VideoBlock";
 import AudioBlock from "./blocks/AudioBlock";
 import RecipeBlock from "./blocks/RecipeBlock";
 import TimelineBlock from "./blocks/TimelineBlock";
-import SocialEmbed from "./blocks/SocialEmbed";
+import SocialEmbed from "./social/SocialEmbed";
 import TextBlock from "./blocks/TextBlock";
 
 interface ArticleContentProps {
@@ -38,9 +38,13 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ content }) => {
   };
 
   return (
-    <article className="prose max-w-none">
-      {content.map((block, index) => renderBlock(block, index))}
-    </article>
+    <div className="prose max-w-none" aria-label="Article content">
+      {content.map((block, index) => (
+        <section key={index} aria-label={`Content section ${index + 1}`}>
+          {renderBlock(block, index)}
+        </section>
+      ))}
+    </div>
   );
 };
 

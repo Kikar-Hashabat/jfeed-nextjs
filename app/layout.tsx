@@ -2,6 +2,7 @@ import { Metadata, Viewport } from "next";
 import { Inter, Newsreader } from "next/font/google";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { Analytics } from "@/components/Analytics"; // Import the client component
 import "./globals.css";
 import { generateLayoutMetadata } from "@/components/seo/metadata";
 
@@ -89,6 +90,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen">
+        <Analytics />
         <a href="#main-content" className="sr-only focus:not-sr-only">
           Skip to main content
         </a>
