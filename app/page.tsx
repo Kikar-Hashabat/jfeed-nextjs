@@ -1,77 +1,141 @@
-// app/page.tsx
-import type { Metadata } from "next";
-import { ArticleCard } from "@/components/ui/ArticleCard";
-import type { Article } from "@/types/article";
-import { headers } from "next/headers";
+import { Metadata } from "next";
+import { getHomeData, getCategoryArticles } from "@/utils/home-data";
+import { HomeMainContent } from "@/types";
+import MainArticle from "@/components/pages/home/MainArticle";
+import { CategorySection } from "@/components/pages/home/CategorySection";
+import ArticleItemFullWidth from "@/components/article-item/ArticleItemFullWidth";
+import { AsideSection } from "@/components/article-item/AsideSection";
+import { generateHomeStructuredData } from "@/components/seo/schema";
+import AboutUsHome from "@/components/pages/home/AboutUsHome";
 
 export const metadata: Metadata = {
-  title: "JFeed - Latest Jewish News & Updates",
+  title: "JFeed - Israel News",
   description:
-    "Stay informed with the latest Jewish news, Israel updates, and worldwide coverage of events affecting the Jewish community.",
+    "JFEED - the latest news and headlines, news from the Jewish world and Israel, weather, TV, radio highlights and much more from across the globe.",
+  robots: {
+    index: true,
+    follow: true,
+  },
   openGraph: {
-    title: "JFeed - Latest Jewish News & Updates",
+    title: "JFeed - Israel News",
     description:
-      "Stay informed with the latest Jewish news, Israel updates, and worldwide coverage of events affecting the Jewish community.",
+      "JFEED - the latest news and headlines, news from the Jewish world and Israel, weather, TV, radio highlights and much more from across the globe.",
+    url: "https://www.jfeed.com",
+    siteName: "JFeed",
     images: [
       {
-        url: "https://your-domain.com/og-home.jpg",
-        width: 1200,
-        height: 630,
-        alt: "JFeed News Homepage",
+        url: "/logo/jfeed-logo_512x512.png",
+        width: 512,
+        height: 512,
+        alt: "JFeed Logo",
       },
     ],
+    type: "website",
+  },
+  alternates: {
+    canonical: "https://www.jfeed.com",
+    types: {
+      "application/rss+xml": "https://a.jfeed.com/v1/rss/articles/latest/rss2",
+    },
   },
 };
 
-async function getArticles(): Promise<Article[]> {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/articles`,
-      {
-        next: { revalidate: 60 },
-      }
-    );
-
-    if (!res.ok) {
-      const error = await res.json();
-      console.error("API error:", error);
-      throw new Error(error.error || "Failed to fetch articles");
-    }
-
-    return res.json();
-  } catch (error) {
-    console.error("Error in getArticles:", error);
-    throw error;
-  }
-}
-
 export default async function Home() {
-  let articles: Article[] = [];
+  const {
+    homeFrontal,
+    mostRead,
+    mostCommented,
+    homeMainContent,
+    seenArticleIds,
+  } = await getHomeData({
+    includeMainContent: true,
+  });
 
-  try {
-    articles = await getArticles();
-  } catch (error) {
-    console.error("Error in Home component:", error);
-    // You might want to add error UI here
-  }
+  const categoryContentItems =
+    homeMainContent?.filter(
+      (content: HomeMainContent) => content.handlerType === "category"
+    ) || [];
 
-  if (articles.length === 0) {
-    return (
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <p>No articles available at the moment. Please try again later.</p>
-      </main>
-    );
-  }
+  const homeCategoriesArticles = await Promise.all(
+    categoryContentItems.map(async (content: HomeMainContent) => {
+      if (content.handlerType === "category") {
+        const categoryArticles = await getCategoryArticles(
+          content.category.slug,
+          seenArticleIds
+        );
+
+        categoryArticles.forEach((article) => {
+          seenArticleIds.add(article.id);
+        });
+
+        return {
+          category: content.category,
+          articles: categoryArticles,
+        };
+      }
+      return { category: content.category, articles: [] };
+    })
+  );
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <ArticleCard article={articles[0]} featured />
+    <>
+      {/* Structured Data Scripts */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(generateHomeStructuredData()),
+        }}
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {articles.slice(1).map((article) => (
-          <ArticleCard key={article.id} article={article} />
-        ))}
-      </div>
-    </main>
+      <main>
+        {/* Main Article */}
+        <MainArticle article={homeFrontal[0]} />
+        <hr className="my-4" />
+
+        <div className="grid grid-cols-12 md:gap-4">
+          <div className="col-span-12 lg:col-span-8">
+            {/* Featured Articles */}
+            <div className="space-y-4">
+              {homeFrontal?.slice(1).map((article) => (
+                <ArticleItemFullWidth
+                  key={article.id}
+                  article={article}
+                  withSubTitle
+                />
+              ))}
+            </div>
+
+            {/* Category Sections */}
+            <div className="space-y-8 mt-8">
+              {homeCategoriesArticles.map(
+                (categoryArticles) =>
+                  categoryArticles && (
+                    <CategorySection
+                      key={categoryArticles.category.slug}
+                      title={categoryArticles.category.name}
+                      link={categoryArticles.category?.slug}
+                      articles={categoryArticles.articles}
+                    />
+                  )
+              )}
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <aside className="hidden lg:block col-span-4">
+            <div className="sticky top-20 space-y-8">
+              {mostCommented.length > 0 && (
+                <AsideSection articles={mostCommented} title="Most Talked" />
+              )}
+              {mostRead.length > 0 && (
+                <AsideSection articles={mostRead} title="Most Read" />
+              )}
+            </div>
+          </aside>
+        </div>
+
+        <AboutUsHome />
+      </main>
+    </>
   );
 }

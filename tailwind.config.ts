@@ -1,3 +1,4 @@
+// tailwind.config.ts
 import type { Config } from "tailwindcss";
 
 export default {
@@ -9,17 +10,35 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "var(--primary-color)",
-        secondary: "var(--secondary-color)",
-        "secondary-dark": "var(--secondary-color-dark)",
-        divider: "var(--divider-color)",
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        primary: {
+          DEFAULT: "var(--primary)",
+          hover: "var(--primary-hover)",
+        },
+        primarytext: "var(--primary-text)",
+        secondary: "var(--secondary)",
+        accent: "var(--accent)",
+        roofbg: "var(--roof-bg)",
       },
       fontFamily: {
-        newsreader: "var(--font-newsreader)",
+        newsreader: ["var(--font-newsreader)", "serif"],
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
       },
-      screens: {
-        layout: "1200px",
-        mobile: "768px",
+      fontSize: {
+        "article-title": [
+          "2rem",
+          {
+            lineHeight: "2.5rem",
+            fontWeight: "700",
+          },
+        ],
+        "article-body": [
+          "1.125rem",
+          {
+            lineHeight: "1.75rem",
+          },
+        ],
       },
     },
   },

@@ -1,13 +1,40 @@
-// app/weather/[state]/[city]/page.tsx
-import WeatherClient from "@/components/WeatherDisplay";
 import { locations } from "@/data/locations";
+import { getWeatherData } from "@/utils/api";
+import WeatherDisplay from "@/components/pages/weather/WeatherDisplay";
+import {
+  generateWeatherMetadata,
+  generateWeatherStructuredData,
+} from "@/components/seo/weather";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ state: string; city: string }>;
+}) {
+  const { state, city } = await params;
+
+  const selectedState = locations.states.find((s) => s.slug === state);
+  const selectedCity = locations.cities.find(
+    (c) => c.state.slug === state && c.slug === city
+  );
+
+  if (!selectedState || !selectedCity) {
+    return {
+      title: "Location Not Found | JFeed",
+      description: "The requested location could not be found.",
+    };
+  }
+
+  const weatherData = await getWeatherData(state, city);
+  return generateWeatherMetadata(selectedCity, selectedState, weatherData);
+}
 
 export default async function WeatherPage({
   params,
 }: {
-  params: { state: string; city: string };
+  params: Promise<{ state: string; city: string }>;
 }) {
-  const { state, city } = await Promise.resolve(params);
+  const { state, city } = await params;
 
   const selectedState = locations.states.find((s) => s.slug === state);
   const selectedCity = locations.cities.find(
@@ -23,20 +50,29 @@ export default async function WeatherPage({
     );
   }
 
-  const weatherResponse = await fetch(
-    `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/weather/${state}/${city}`,
-    { cache: "no-store" }
-  );
-
-  const weatherData = await weatherResponse.json();
+  const weatherData = await getWeatherData(state, city);
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <WeatherClient
-        initialWeatherData={weatherData}
-        selectedState={selectedState}
-        selectedCity={selectedCity}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            generateWeatherStructuredData(
+              selectedCity,
+              selectedState,
+              weatherData
+            )
+          ),
+        }}
       />
-    </div>
+      <div className="container mx-auto py-8 px-4">
+        <WeatherDisplay
+          initialWeatherData={weatherData}
+          selectedState={selectedState}
+          selectedCity={selectedCity}
+        />
+      </div>
+    </>
   );
 }

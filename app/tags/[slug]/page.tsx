@@ -1,256 +1,211 @@
-import type { Metadata } from "next";
+import { getTag, getArticlesV2 } from "@/utils/api";
+import Pagination from "@/components/Pagination";
+import { getHomeData } from "@/utils/home-data";
+import { Article } from "@/types";
+import ArticleItemFullWidth from "@/components/article-item/ArticleItemFullWidth";
+import ArticleItemMain from "@/components/article-item/ArticleItemMain";
 import Image from "next/image";
-import Link from "next/link";
+import { AsideSection } from "@/components/article-item/AsideSection";
+import {
+  generateTagMetadata,
+  generateTagStructuredData,
+} from "@/components/seo/tag";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import Title from "@/components/Title";
 
-interface Tag {
-  id: number;
-  slug: string;
-  name: string;
-  isLean: boolean;
-  title: string;
-  subtitle: string;
-  metaTitle: string;
-  metaDescription: string;
-  description: string;
-  metaKeywords: string;
-  autoLink: boolean;
-  status: string;
-  metadata: Record<string, unknown>;
-  image: string | null;
-  content: string | null;
-  type: string;
-  created: string;
-  updated: string;
-  deletedAt: string | null;
-  keywords: string[];
-  imageSrc: string | null;
-  articlesCount: number;
-}
-
-interface Article {
-  id: number;
-  slug: string;
-  author: string;
-  categoryId: number;
-  categorySlug: string;
-  image: {
-    v: number;
-    src: string;
-    height: number;
-    width: number;
-    alt: string;
-    credit: string;
-    preview: string | null;
-  };
-  title: string;
-  titleShort: string | null;
-  subTitle: string;
-  roofTitle: string;
-  redirectUrl: string | null;
-  time: number;
-  lastUpdate: number | null;
-  props: string[];
-}
-
-async function getTagData(slug: string): Promise<Tag> {
-  try {
-    const res = await fetch(`https://a.jfeed.com/v1/tags/${slug}`, {
-      next: { revalidate: 300 }, // Cache for 5 minutes
-    });
-
-    if (!res.ok) {
-      throw new Error(`Failed to fetch tag: ${res.status}`);
-    }
-
-    return await res.json();
-  } catch (error) {
-    console.error("Error fetching tag data:", error);
-    throw error;
-  }
-}
-async function getTagArticles(
-  tagId: number,
-  page: number = 1
-): Promise<Article[]> {
-  if (!tagId) {
-    throw new Error("TagId is required");
-  }
-
-  const apiUrl = `https://a.jfeed.com/v2/articles?tagId=${tagId}&limit=20&page=${
-    page - 1
-  }`;
-
-  try {
-    const res = await fetch(apiUrl);
-
-    if (!res.ok) {
-      const errorMessage = `Failed to fetch articles: ${res.status}`;
-      console.error(errorMessage);
-      throw new Error(errorMessage);
-    }
-
-    const data = await res.json();
-    return data;
-  } catch (error) {
-    console.error("Error in getTagArticles:", error);
-    throw error;
-  }
-}
-
-type PageProps = {
-  params: Promise<{ slug: string }>;
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
-};
+const ITEMS_PER_PAGE = 20;
 
 export async function generateMetadata({
   params,
-}: PageProps): Promise<Metadata> {
-  const resolvedParams = await params; // Resolve the params
-  const tag = await getTagData(resolvedParams.slug);
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const [resolvedParams, resolvedSearchParams] = await Promise.all([
+    params,
+    searchParams,
+  ]);
+
+  const category = await getTag(resolvedParams.slug);
+
+  const currentPage = resolvedSearchParams.page
+    ? parseInt(resolvedSearchParams.page)
+    : 1;
+
+  return generateTagMetadata(category, currentPage);
+}
+
+async function getTagData(
+  tagId: string,
+  page: number,
+  existingIds: Set<number>
+): Promise<{
+  articles: Article[];
+  hasMore: boolean;
+}> {
+  const articles = await getArticlesV2({
+    tagId,
+    page: page - 1,
+    limit: ITEMS_PER_PAGE,
+  });
+
+  // Filter out any articles that we've already shown in homeFrontal or mostRead
+  const filteredArticles = articles.filter(
+    (article) => !existingIds.has(article.id)
+  );
 
   return {
-    title: tag.metaTitle || `${tag.name} News and Updates | JFeed`,
-    description:
-      tag.metaDescription ||
-      `Latest news and updates about ${tag.name}. Find all related articles and coverage on JFeed.`,
-    openGraph: {
-      title: tag.metaTitle || `${tag.name} News and Updates`,
-      description:
-        tag.metaDescription || `Latest news and updates about ${tag.name}`,
-      images: tag.image ? [{ url: tag.image }] : [],
-    },
+    articles: filteredArticles,
+    hasMore: articles.length === ITEMS_PER_PAGE,
   };
 }
 
-function formatDate(timestamp: number) {
-  return new Date(timestamp).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+export default async function TagPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string }>;
+}) {
+  // Wait for both params and searchParams to resolve
+  const [resolvedParams, resolvedSearchParams] = await Promise.all([
+    params,
+    searchParams,
+  ]);
+
+  const slug = resolvedParams.slug;
+  const currentPage = resolvedSearchParams.page
+    ? parseInt(resolvedSearchParams.page)
+    : 1;
+
+  // First get the tag to get the ID and details
+  const tag = await getTag(slug);
+
+  // Get home data for the sidebar and to track seen articles
+  const { homeFrontal, mostRead, seenArticleIds } = await getHomeData();
+
+  // Load tag articles for current page
+  const { articles, hasMore } = await getTagData(
+    tag.id.toString(),
+    currentPage,
+    seenArticleIds
+  );
+
+  // Add these articles to seenArticleIds
+  articles.forEach((article) => {
+    seenArticleIds.add(article.id);
   });
-}
 
-export default async function TagPage({ params, searchParams }: PageProps) {
-  const resolvedParams = await params;
-  const resolvedSearchParams = searchParams ? await searchParams : {};
-
-  const pageParam = resolvedSearchParams.page;
-  const pageNumber = typeof pageParam === "string" ? parseInt(pageParam) : 1;
-
-  const tag = await getTagData(resolvedParams.slug);
-  const articles = await getTagArticles(tag.id, pageNumber);
+  const breadcrumbs = [{ name: tag.name, url: `/tags/${slug}`, isLink: false }];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Tag Header */}
-      <header className="mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">{tag.name}</h1>
-        {tag.subtitle && (
-          <p className="text-xl text-gray-600 mb-4">{tag.subtitle}</p>
-        )}
-        <div className="text-sm text-gray-500">
-          {tag.articlesCount.toLocaleString()} articles
+    <>
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(generateTagStructuredData(tag, articles)),
+        }}
+      />
+
+      <main className="container mx-auto">
+        <Breadcrumbs items={breadcrumbs} />
+        <hr className="my-3" />
+        {/* Tag Header */}
+        <div className="border-b border-gray-300 mb-3">
+          <Title
+            title={tag.title || tag.name}
+            className="text-3xl font-bold capitalize"
+            tag="h1"
+          />
+          {tag.subtitle && (
+            <p className="text-lg text-gray-700 mb-4  text-center font-semibold">
+              {tag.subtitle}
+            </p>
+          )}
+          {tag.description && (
+            <p className="text-gray-600 mb-4">{tag.description}</p>
+          )}
+          {tag.imageSrc && (
+            <Image
+              src={tag.imageSrc}
+              alt={tag.name}
+              title={tag.name}
+              width={120}
+              height={120}
+              className="w-auto h-32 rounded-lg mb-4 object-contain border border-gray-200"
+            />
+          )}
         </div>
-        {tag.description && tag.description.length > 0 && (
-          <div className="mt-4 prose max-w-none">{tag.description}</div>
-        )}
-      </header>
 
-      {/* Articles Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {articles.map((article, index) => (
-          <article key={`${article.id}-${index}`} className="flex flex-col">
-            <div className="group">
-              <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg mb-4">
-                <Link href={`/${article.categorySlug}/${article.slug}`}>
-                  {article.image && article.image.src ? (
-                    <Image
-                      src={article.image.src}
-                      alt={article.image.alt || article.title}
-                      width={article.image.width || 640}
-                      height={article.image.height || 360}
-                      className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-200"
+        {/* Tag Content */}
+        {tag.content && tag.content.length > 0 && (
+          <div className="space-y-6">
+            {tag.content.map((block, index) => {
+              if (block.type === "paragraph") {
+                return (
+                  <p key={index} className="text-gray-700 leading-relaxed">
+                    {block.children.map((child, childIndex) => (
+                      <span key={childIndex}>{child.text}</span>
+                    ))}
+                  </p>
+                );
+              }
+              return null;
+            })}
+          </div>
+        )}
+
+        {tag.content && <hr className="my-3" />}
+
+        {/* Articles Section */}
+        <div className="grid grid-cols-12 md:gap-4">
+          <div className="col-span-12 lg:col-span-8">
+            {articles && articles.length > 0 ? (
+              <>
+                <ArticleItemMain article={articles[0]} withSubTitle />
+
+                <div className="space-y-4">
+                  {articles?.slice(1).map((article) => (
+                    <ArticleItemFullWidth
+                      key={article.id}
+                      article={article}
+                      withSubTitle
                     />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-400">No image available</span>
-                    </div>
-                  )}
-                  {article.props.includes("video") && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="bg-black bg-opacity-50 rounded-full p-3">
-                        <svg
-                          className="w-8 h-8 text-white"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      </div>
-                    </div>
-                  )}
-                  {article.image?.credit && (
-                    <div className="absolute bottom-2 right-2 text-xs text-white bg-black bg-opacity-50 px-2 py-1 rounded">
-                      {article.image.credit}
-                    </div>
-                  )}
-                </Link>
-              </div>
+                  ))}
+                </div>
 
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-red-600 font-semibold text-sm">
-                  {article.roofTitle}
-                </span>
-                <Link
-                  href={`/${article.categorySlug}`}
-                  className="text-sm text-gray-600 hover:text-gray-900"
-                >
-                  {article.categorySlug.replace("-", " ").toUpperCase()}
-                </Link>
+                {hasMore && (
+                  <div className="mt-8">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalItems={
+                        currentPage * ITEMS_PER_PAGE +
+                        (hasMore ? ITEMS_PER_PAGE : 0)
+                      }
+                      itemsPerPage={ITEMS_PER_PAGE}
+                      baseUrl={`/tags/${slug}`}
+                    />
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="bg-gray-50 rounded-lg p-8 text-center">
+                <p className="text-gray-600">No articles found for this tag.</p>
               </div>
+            )}
+          </div>
 
-              <Link href={`/${article.categorySlug}/${article.slug}`}>
-                <h2 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 line-clamp-2 mb-2">
-                  {article.title}
-                </h2>
-                <p className="text-gray-600 line-clamp-2 mb-4">
-                  {article.subTitle}
-                </p>
-              </Link>
-
-              <div className="mt-auto flex items-center text-sm text-gray-500">
-                <span>{article.author}</span>
-                <span className="mx-2">•</span>
-                <time dateTime={new Date(article.time).toISOString()}>
-                  {formatDate(article.time)}
-                </time>
-              </div>
+          {/* Sidebar */}
+          <aside className="hidden lg:block col-span-4">
+            <div className="sticky top-20 space-y-8">
+              <AsideSection articles={homeFrontal} title="Top Stories" />
+              <AsideSection articles={mostRead} title="Most Read" />
             </div>
-          </article>
-        ))}
-      </div>
-
-      {/* Pagination */}
-      <div className="mt-12 flex justify-center gap-2">
-        {pageNumber > 1 && (
-          <Link
-            href={`/tags/${resolvedParams.slug}?page=${pageNumber - 1}`}
-            className="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            Previous
-          </Link>
-        )}
-        {articles.length === 20 && (
-          <Link
-            href={`/tags/${resolvedParams.slug}?page=${pageNumber + 1}`}
-            className="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            Next
-          </Link>
-        )}
-      </div>
-    </div>
+          </aside>
+        </div>
+      </main>
+    </>
   );
 }

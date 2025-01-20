@@ -1,18 +1,19 @@
 import { Suspense } from "react";
-import { Metadata } from "next";
 import { locations } from "@/data/locations";
-import HalachicTimesContent from "@/components/HalachicTimesContent";
+import { getHalachicTimes } from "@/utils/api";
+import HalachicTimesContent from "@/components/pages/times/HalachicTimesContent";
+import { HalachicTimesResponse } from "@/types/locations";
+import {
+  generateHalachicTimesMetadata,
+  generateHalachicTimesStructuredData,
+} from "@/components/seo/times";
 
-interface Props {
-  params: {
-    state: string;
-    city: string;
-    date: string;
-  };
-}
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { state, city, date } = await Promise.resolve(params);
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ state: string; city: string; date: string }>;
+}) {
+  const { state, city, date } = await params;
 
   const cityData = locations.cities.find(
     (c) => c.state.slug === state && c.slug === city
@@ -20,63 +21,57 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!cityData) {
     return {
-      title: "City Not Found - JFeed Israel News",
-      description: "The requested city could not be found.",
+      title: "Location Not Found | JFeed",
+      description: "The requested location could not be found.",
     };
   }
 
-  const formattedDate = new Date(date).toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-  const title = `Halachic Times - ${cityData.name}, ${cityData.state.name} - JFeed Israel News`;
-  const description = `Halachic times for ${cityData.name}, ${cityData.state.name} on ${formattedDate}. Get accurate zmanim times.`;
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      siteName: "JFeed Israel News",
-      locale: "en_US",
-      type: "website",
-    },
-    twitter: {
-      card: "summary",
-      title,
-      description,
-    },
-    alternates: {
-      canonical: `${process.env.NEXT_PUBLIC_WEBSITE_URL}/halachic-times/${state}/${city}/${date}`,
-    },
-  };
+  const data = await getHalachicTimes(state, city, date);
+  return generateHalachicTimesMetadata(cityData, date, data);
 }
 
-export default async function HalachicTimesPage({ params }: Props) {
-  const { state, city, date } = await Promise.resolve(params);
+export default async function HalachicTimesPage({
+  params,
+}: {
+  params: Promise<{ state: string; city: string; date: string }>;
+}) {
+  const { state, city, date } = await params;
+
   const cityData = locations.cities.find(
     (c) => c.state.slug === state && c.slug === city
   );
 
   if (!cityData) {
-    throw new Error("City not found");
+    return (
+      <div className="text-center py-8">
+        <h1 className="text-2xl font-semibold">Location not found</h1>
+        <p className="mt-4 text-gray-500">Please select a valid location.</p>
+      </div>
+    );
   }
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/times/halachic/${state}/${city}/${date}`
-  );
-  const data = await response.json();
+  const data = await getHalachicTimes(state, city, date);
 
   return (
-    <main className="mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-4">Halachic Times</h1>
-      <Suspense fallback={<div className="h-16" />}>
-        <HalachicTimesContent city={cityData} data={data} date={date} />
-      </Suspense>
-    </main>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            generateHalachicTimesStructuredData(cityData, date, data)
+          ),
+        }}
+      />
+      <main className="mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-4">Halachic Times</h1>
+        <Suspense fallback={<div className="h-16" />}>
+          <HalachicTimesContent
+            city={cityData}
+            data={data as HalachicTimesResponse}
+            date={date}
+          />
+        </Suspense>
+      </main>
+    </>
   );
 }

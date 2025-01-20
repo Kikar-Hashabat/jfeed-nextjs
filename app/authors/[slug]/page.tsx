@@ -1,72 +1,67 @@
-import type { Metadata } from "next";
+import { getAuthor, getArticlesV2 } from "@/utils/api";
+import { getHomeData } from "@/utils/home-data";
+import ArticleItemFullWidth from "@/components/article-item/ArticleItemFullWidth";
+import Pagination from "@/components/Pagination";
 import Image from "next/image";
 import Link from "next/link";
+import { Facebook, X } from "lucide-react";
+import { Article } from "@/types";
+import ArticleItemMain from "@/components/article-item/ArticleItemMain";
+import { AsideSection } from "@/components/article-item/AsideSection";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import {
+  generateAuthorMetadata,
+  generateAuthorStructuredData,
+} from "@/components/seo/author";
+import Title from "@/components/Title";
 
-interface Author {
-  id: number;
-  slug: string;
-  name: string;
-  bio: string;
-  image: string | null;
-  twitter: string | null;
-  facebook: string | null;
-  wikipedia: string | null;
-}
-
-interface Article {
-  id: number;
-  slug: string;
-  author: string;
-  image: {
-    src: string;
-    height: number;
-    width: number;
-    alt: string | null;
-    credit: string | null;
-  };
-  title: string;
-  subTitle: string;
-  time: number;
-}
-
-async function fetchAuthorData(slug: string): Promise<Author> {
-  const res = await fetch(`https://a.jfeed.com/v1/authors/${slug}`, {
-    next: { revalidate: 300 },
-  });
-  if (!res.ok) throw new Error("Failed to fetch author data");
-  return res.json();
-}
-
-async function fetchAuthorArticles(
-  authorSlug: string,
-  page: number = 1,
-  limit: number = 20
-): Promise<Article[]> {
-  const res = await fetch(
-    `https://a.jfeed.com/v2/articles?authorSlug=${authorSlug}&limit=${limit}&page=${page}`,
-    { next: { revalidate: 300 } }
-  );
-  if (!res.ok) throw new Error("Failed to fetch author articles");
-  return res.json();
-}
+const ITEMS_PER_PAGE = 20;
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const resolvedParams = await params; // Await the params
-  const author = await fetchAuthorData(resolvedParams.slug);
+  searchParams: Promise<{ page?: string }>;
+}) {
+  // First resolve params and searchParams
+  const [resolvedParams, resolvedSearchParams] = await Promise.all([
+    params,
+    searchParams,
+  ]);
+
+  // Now we can use the resolved category to fetch category data
+  const category = await getAuthor(resolvedParams.slug);
+
+  const currentPage = resolvedSearchParams.page
+    ? parseInt(resolvedSearchParams.page)
+    : 1;
+
+  return generateAuthorMetadata(category, currentPage);
+}
+
+async function getAuthorData(
+  slug: string,
+  page: number,
+  existingIds: Set<number>
+): Promise<{
+  articles: Article[];
+  hasMore: boolean;
+}> {
+  const articles = await getArticlesV2({
+    authorSlug: slug,
+    page: page - 1,
+    limit: ITEMS_PER_PAGE,
+  });
+
+  // Filter out any articles that we've already shown in homeFrontal or mostRead
+  const filteredArticles = articles.filter(
+    (article) => !existingIds.has(article.id)
+  );
 
   return {
-    title: `${author.name} | JFeed Author`,
-    description:
-      author.bio || `Explore articles and insights by ${author.name} at JFeed.`,
-    openGraph: {
-      title: `${author.name} | JFeed Author`,
-      description: author.bio,
-      images: author.image ? [{ url: author.image }] : [],
-    },
+    articles: filteredArticles,
+    hasMore: articles.length === ITEMS_PER_PAGE,
   };
 }
 
@@ -75,112 +70,171 @@ export default async function AuthorPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams?: { [key: string]: string | string[] };
+  searchParams: Promise<{ page?: string }>;
 }) {
-  const resolvedParams = await params; // Await params
-  const resolvedSearchParams = searchParams ? await searchParams : {}; // Await searchParams if provided
-  const slug = resolvedParams.slug;
-
-  // Safely access `page` from resolvedSearchParams
-  const page = parseInt((resolvedSearchParams.page as string) || "1", 10);
-
-  const [author, articles] = await Promise.all([
-    fetchAuthorData(slug),
-    fetchAuthorArticles(slug, page),
+  // Wait for both params and searchParams to resolve
+  const [resolvedParams, resolvedSearchParams] = await Promise.all([
+    params,
+    searchParams,
   ]);
+
+  const slug = resolvedParams.slug;
+  const currentPage = resolvedSearchParams.page
+    ? parseInt(resolvedSearchParams.page)
+    : 1;
+
+  // Get home data for the sidebar and to track seen articles
+  const { homeFrontal, mostRead, seenArticleIds } = await getHomeData();
+
+  // First get the author data
+  const author = await getAuthor(slug);
+
+  // Load author articles for current page
+  const { articles, hasMore } = await getAuthorData(
+    slug,
+    currentPage,
+    seenArticleIds
+  );
+
+  // Add these articles to seenArticleIds
+  articles.forEach((article) => {
+    seenArticleIds.add(article.id);
+  });
+
+  const breadcrumbs = [
+    { name: "Authors", url: "/authors", isLink: false },
+    { name: author.name, url: `/authors/${slug}`, isLink: false },
+  ];
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Author Header */}
-      <header className="mb-12 text-center">
-        {author.image && (
-          <Image
-            src={author.image}
-            alt={author.name}
-            width={150}
-            height={150}
-            className="rounded-full mx-auto mb-4"
-          />
-        )}
-        <h1 className="text-3xl font-bold">{author.name}</h1>
-        <p className="text-lg text-gray-600">{author.bio}</p>
-        <div className="mt-4 flex justify-center space-x-4">
-          {author.twitter && (
-            <a
-              href={author.twitter}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
-            >
-              Twitter
-            </a>
-          )}
-          {author.facebook && (
-            <a
-              href={author.facebook}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
-            >
-              Facebook
-            </a>
-          )}
-          {author.wikipedia && (
-            <a
-              href={author.wikipedia}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
-            >
-              Wikipedia
-            </a>
-          )}
-        </div>
-      </header>
-
-      {/* Articles Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {articles.map((article) => (
-          <article key={article.id} className="flex flex-col">
-            <div className="relative aspect-video rounded-lg overflow-hidden mb-4">
-              <Link href={`/article/${article.slug}`}>
+    <>
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            generateAuthorStructuredData(author, articles)
+          ),
+        }}
+      />
+      <Breadcrumbs items={breadcrumbs} />
+      <hr className="my-3" />
+      <main className="container mx-auto">
+        {/* Author Header */}
+        <div>
+          <div className="flex items-start md:gap-4">
+            {/* Author Image */}
+            {author.image && (
+              <div className="flex-shrink-0">
                 <Image
-                  src={article.image.src}
-                  alt={article.image.alt || article.title}
-                  width={article.image.width}
-                  height={article.image.height}
-                  className="object-cover w-full h-full"
+                  src={author.image}
+                  alt={author.name}
+                  title={author.name}
+                  width={200}
+                  height={200}
+                  className="rounded-lg"
                 />
-              </Link>
-              {article.image.credit && (
-                <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 rounded">
-                  {article.image.credit}
-                </div>
-              )}
-            </div>
-            <h2 className="text-xl font-semibold">{article.title}</h2>
-            <p className="text-gray-600">{article.subTitle}</p>
-            <div className="mt-auto text-sm text-gray-500">
-              <time dateTime={new Date(article.time).toISOString()}>
-                {new Date(article.time).toLocaleDateString()}
-              </time>
-            </div>
-          </article>
-        ))}
-      </div>
+              </div>
+            )}
 
-      {/* Pagination */}
-      <div className="mt-8 flex justify-center gap-4">
-        {page > 1 && (
-          <Link href={`/authors/${slug}?page=${page - 1}`} className="btn">
-            Previous
-          </Link>
-        )}
-        {articles.length === 20 && (
-          <Link href={`/authors/${slug}?page=${page + 1}`} className="btn">
-            Next
-          </Link>
-        )}
-      </div>
-    </div>
+            {/* Author Info */}
+            <div className="flex-grow">
+              <Title
+                title={author.name}
+                className="text-3xl font-bold capitalize"
+                tag="h1"
+              />
+              {author.role && (
+                <p className="text-gray-600 text-lg mb-4">{author.role}</p>
+              )}
+              {author.bio && (
+                <p className="text-gray-700 mb-4 leading-relaxed">
+                  {author.bio}
+                </p>
+              )}
+
+              {/* Social Links */}
+              <div className="flex gap-4">
+                {author.twitter && (
+                  <Link
+                    href={author.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-blue-500"
+                  >
+                    <X size={20} />
+                  </Link>
+                )}
+                {author.facebook && (
+                  <Link
+                    href={author.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-blue-600"
+                  >
+                    <Facebook size={20} />
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr className="my-3" />
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-12 md:gap-4">
+          <div className="col-span-12 lg:col-span-8">
+            {articles && articles.length > 0 ? (
+              <>
+                {/* First article using ArticleItemBig */}
+                <div className="mb-8">
+                  <ArticleItemMain article={articles[0]} withSubTitle={true} />
+                </div>
+
+                {/* Remaining articles */}
+                <div className="space-y-4">
+                  {articles?.slice(1).map((article) => (
+                    <ArticleItemFullWidth
+                      key={article.id}
+                      article={article}
+                      withSubTitle
+                    />
+                  ))}
+                </div>
+
+                {hasMore && (
+                  <div className="mt-8">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalItems={
+                        currentPage * ITEMS_PER_PAGE +
+                        (hasMore ? ITEMS_PER_PAGE : 0)
+                      }
+                      itemsPerPage={ITEMS_PER_PAGE}
+                      baseUrl={`/authors/${slug}`}
+                    />
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="bg-gray-50 rounded-lg p-8 text-center">
+                <p className="text-gray-600">
+                  No articles found by this author.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <aside className="hidden lg:block col-span-4">
+            <div className="sticky top-20 space-y-8">
+              <AsideSection articles={homeFrontal} title="Top Stories" />
+              <AsideSection articles={mostRead} title="Most Read" />
+            </div>
+          </aside>
+        </div>
+      </main>
+    </>
   );
 }

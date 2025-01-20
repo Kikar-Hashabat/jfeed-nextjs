@@ -1,9 +1,10 @@
+// components/LocationSelector.tsx
 "use client";
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { locations } from "@/data/locations";
-import { Location, State } from "@/types/location";
+import { Location, State } from "@/types/locations";
 
 interface LocationSelectorProps {
   selectedState: State;
