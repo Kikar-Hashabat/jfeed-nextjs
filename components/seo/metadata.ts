@@ -1,4 +1,3 @@
-// lib/metadata.ts
 import { Metadata } from "next";
 
 interface LayoutMetadataProps {
@@ -32,7 +31,7 @@ export function generateLayoutMetadata({
 
   return {
     title: {
-      default: `${title} - Your Modern News Feed`,
+      default: `${title} - Israel News`,
       template: `%s | ${title}`,
     },
     description,
@@ -40,10 +39,14 @@ export function generateLayoutMetadata({
     referrer: "origin-when-cross-origin",
     keywords: [
       "JFeed",
+      "Israel News",
       "Jewish News",
-      "Modern News",
-      "Jewish Community",
-      "News Feed",
+      "Jewish World",
+      "Israel",
+      "Weather",
+      "TV",
+      "Radio",
+      "Global News",
     ],
     authors: [{ name: "JFeed Team" }],
     creator: "JFeed",
@@ -55,6 +58,10 @@ export function generateLayoutMetadata({
     },
     alternates: {
       canonical: canonical,
+      types: {
+        "application/rss+xml":
+          "https://a.jfeed.com/v1/rss/articles/latest/rss2",
+      },
     },
     robots: {
       index: true,
@@ -66,6 +73,9 @@ export function generateLayoutMetadata({
         "max-snippet": -1,
         "max-video-preview": -1,
       },
+    },
+    verification: {
+      google: "FjXIcd2RpoJVQ017W9NSl1EqY3ZFoAjWzrQ-6KxPUg8",
     },
     openGraph: {
       type,
@@ -91,6 +101,13 @@ export function generateLayoutMetadata({
       site: "@JFeed",
     },
     other: {
+      // Analytics IDs
+      "google-analytics": "G-0XK60NGJ6B",
+      "google-adsense": "AW-11464299220",
+      "hotjar-id": "5162923",
+      "hotjar-version": "6",
+
+      // Mobile app config
       "apple-mobile-web-app-capable": "yes",
       "apple-mobile-web-app-status-bar-style": "default",
       "apple-mobile-web-app-title": title,
@@ -98,6 +115,38 @@ export function generateLayoutMetadata({
       "mobile-web-app-capable": "yes",
       "msapplication-TileColor": "#000000",
       "msapplication-tap-highlight": "no",
+    },
+  };
+}
+
+export function generateOrganizationSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    url: "https://www.jfeed.com",
+    logo: "/logo/jfeed-logo_512.png",
+  };
+}
+
+export function generateHomePageSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "JFeed - Israel News",
+    url: "https://www.jfeed.com",
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          item: {
+            "@type": "WebPage",
+            "@id": "https://www.jfeed.com/",
+            name: "Home",
+          },
+        },
+      ],
     },
   };
 }

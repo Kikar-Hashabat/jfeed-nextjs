@@ -117,6 +117,32 @@ export interface RecipeContent extends BaseContent {
   recipeInstructions: RecipeInstructionStep[];
 }
 
+export interface RecipeSchema {
+  "@context": "https://schema.org";
+  "@type": "Recipe";
+  name: string;
+  image: string[];
+  author: {
+    "@type": "Person";
+    name: string;
+    url?: string;
+  };
+  datePublished: string;
+  description: string;
+  prepTime: string;
+  cookTime: string;
+  totalTime: string;
+  keywords: string;
+  recipeIngredient: string[];
+  recipeYield?: string;
+  recipeCategory?: string;
+  recipeInstructions?: Array<{
+    "@type": "HowToStep";
+    url: string;
+    text: string;
+  }>;
+}
+
 // Timeline content
 export interface TimelineContent extends BaseContent {
   type: "timeline";

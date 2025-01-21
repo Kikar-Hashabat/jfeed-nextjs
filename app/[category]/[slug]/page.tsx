@@ -12,6 +12,7 @@ import {
   generateArticleMetadata,
   generateArticleStructuredData,
   generateBreadcrumbStructuredData,
+  generateRecipeSchema,
 } from "@/components/seo/article";
 import Link from "next/link";
 import { getWordCount } from "@/utils/article";
@@ -143,6 +144,7 @@ export default async function ArticlePage({
     article: generateArticleStructuredData(article),
     breadcrumb: generateBreadcrumbStructuredData(article),
   };
+  const recipeSchema = generateRecipeSchema(article);
 
   return (
     <>
@@ -154,6 +156,17 @@ export default async function ArticlePage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
         />
       ))}
+
+      {article.props.includes("recipe") &&
+        recipeSchema?.map((recipe, index) => (
+          <script
+            key={`recipe-${index}`}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(recipe),
+            }}
+          />
+        ))}
 
       <main className="container">
         <Breadcrumbs items={breadcrumbs} />

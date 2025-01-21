@@ -5,8 +5,8 @@ import MainArticle from "@/components/pages/home/MainArticle";
 import { CategorySection } from "@/components/pages/home/CategorySection";
 import ArticleItemFullWidth from "@/components/article-item/ArticleItemFullWidth";
 import { AsideSection } from "@/components/article-item/AsideSection";
-import { generateHomeStructuredData } from "@/components/seo/schema";
 import AboutUsHome from "@/components/pages/home/AboutUsHome";
+import { generateHomePageSchema } from "@/components/seo/metadata";
 
 export const metadata: Metadata = {
   title: "JFeed - Israel News",
@@ -83,10 +83,9 @@ export default async function Home() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(generateHomeStructuredData()),
+          __html: JSON.stringify(generateHomePageSchema()),
         }}
       />
-
       <main>
         {/* Main Article */}
         <MainArticle article={homeFrontal[0]} />

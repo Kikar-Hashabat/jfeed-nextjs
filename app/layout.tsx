@@ -4,7 +4,10 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Analytics } from "@/components/Analytics"; // Import the client component
 import "./globals.css";
-import { generateLayoutMetadata } from "@/components/seo/metadata";
+import {
+  generateLayoutMetadata,
+  generateOrganizationSchema,
+} from "@/components/seo/metadata";
 
 // Optimize font loading
 const inter = Inter({
@@ -82,6 +85,13 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(generateOrganizationSchema()),
+          }}
+        />
+
         <link
           rel="preconnect"
           href={process.env.NEXT_PUBLIC_API_URL}
