@@ -13,12 +13,23 @@ interface ArticleContentProps {
 }
 
 const ArticleContent: React.FC<ArticleContentProps> = ({ content }) => {
+  let firstTextBlockFound = false;
+
   const renderBlock = (block: ArticleContentItem, index: number) => {
     switch (block.type) {
+      case "html": {
+        const isFirstTextBlock = !firstTextBlockFound;
+        firstTextBlockFound = true;
+        return (
+          <TextBlock
+            key={`html-${index}`}
+            content={block.content}
+            showOutbrain={isFirstTextBlock}
+          />
+        );
+      }
       case "img":
         return <ImageBlock key={`img-${index}`} {...block} />;
-      case "html":
-        return <TextBlock key={`html-${index}`} content={block.content} />;
       case "video":
         return <VideoBlock key={`video-${index}`} {...block} />;
       case "audio":

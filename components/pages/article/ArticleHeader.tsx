@@ -89,7 +89,6 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({
               className="flex items-center gap-1 text-primary hover:text-primary-dark transition-colors"
               aria-label={`Visit ${author.name}'s Twitter profile`}
             >
-              <XIcon fontSize="small" sx={{ color: "black" }} />
               <span className="sr-only">Twitter</span>
             </Link>
           )}
