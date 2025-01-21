@@ -201,7 +201,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
       className={className}
       sizes={sizes}
       priority={shouldPrioritize}
-      //quality={85}
+      quality={85}
       loading={shouldPrioritize ? "eager" : "lazy"}
       {...(!fill && width && height && { width, height })}
     />
