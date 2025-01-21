@@ -190,8 +190,14 @@ export async function middleware(request: NextRequest) {
               );
             }
 
-            // Check if article is in the correct category
-            if (article.categories?.[0]?.slug !== categorySlug) {
+            // Add proper null checks for article categories
+            if (
+              article.categories &&
+              Array.isArray(article.categories) &&
+              article.categories.length > 0 &&
+              article.categories[0].slug &&
+              article.categories[0].slug !== categorySlug
+            ) {
               return NextResponse.redirect(
                 new URL(
                   `/${article.categories[0].slug}/${articleSlug}`,
@@ -218,7 +224,7 @@ export async function middleware(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("Middleware error:", error);
-    // Only redirect to homepage on server errors, not on client errors
+    // On error, just continue to the page instead of redirecting
     return NextResponse.next();
   }
 }
