@@ -31,6 +31,13 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.jfeed.com"),
+  ...generateLayoutMetadata({
+    title: "JFeed",
+    description:
+      "Your Modern News Feed - Stay informed with the latest Jewish news, community updates, and cultural insights.",
+    type: "website",
+    canonical: "https://www.jfeed.com",
+  }),
   icons: {
     icon: [
       { url: "/logo/jfeed-logo_64.ico", sizes: "64x64" },
@@ -59,7 +66,7 @@ export const metadata: Metadata = {
     description:
       "Your Modern News Feed - Stay informed with the latest Jewish news, community updates, and cultural insights.",
     type: "website",
-    canonical: process.env.NEXT_PUBLIC_WEBSITE_URL,
+    canonical: "https://www.jfeed.com",
   }),
 };
 
@@ -90,7 +97,6 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen">
-        <Analytics />
         <a href="#main-content" className="sr-only focus:not-sr-only">
           Skip to main content
         </a>
@@ -99,6 +105,7 @@ export default function RootLayout({
           <div className="max-w-6xl mx-auto px-4">{children}</div>
         </main>
         <Footer />
+        <Analytics />
       </body>
     </html>
   );

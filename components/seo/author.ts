@@ -6,7 +6,7 @@ export function generateAuthorMetadata(
   currentPage: number
 ): Metadata {
   const isFirstPage = currentPage === 1;
-  const baseUrl = `${process.env.NEXT_PUBLIC_WEBSITE_URL}/authors/${author.slug}`;
+  const baseUrl = `https://www.jfeed.com/authors/${author.slug}`;
   const canonicalUrl = isFirstPage ? baseUrl : `${baseUrl}?page=${currentPage}`;
 
   const title = isFirstPage
@@ -64,12 +64,12 @@ export function generateAuthorStructuredData(
   const personData = {
     "@context": "https://schema.org",
     "@type": "Person",
-    "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/authors/${author.slug}#person`,
+    "@id": `https://www.jfeed.com/authors/${author.slug}#person`,
     name: author.name,
     description: author.bio,
     image: author.image,
     jobTitle: author.role,
-    url: `${process.env.NEXT_PUBLIC_WEBSITE_URL}/authors/${author.slug}`,
+    url: `https://www.jfeed.com/authors/${author.slug}`,
     sameAs: [
       author.twitter && author.twitter,
       author.facebook && author.facebook,
@@ -94,7 +94,7 @@ export function generateAuthorStructuredData(
         "@type": "ListItem",
         position: 2,
         item: {
-          "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/authors`,
+          "@id": `https://www.jfeed.com/authors`,
           name: "Authors",
         },
       },
@@ -102,7 +102,7 @@ export function generateAuthorStructuredData(
         "@type": "ListItem",
         position: 3,
         item: {
-          "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/authors/${author.slug}`,
+          "@id": `https://www.jfeed.com/authors/${author.slug}`,
           name: author.name,
         },
       },
@@ -119,7 +119,7 @@ export function generateAuthorStructuredData(
       item: {
         "@type": "Article",
         headline: article.title,
-        url: `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${article.categorySlug}/${article.slug}`,
+        url: `https://www.jfeed.com/${article.categorySlug}/${article.slug}`,
         datePublished: new Date(article.time * 1000).toISOString(),
         dateModified: article.lastUpdate
           ? new Date(article.lastUpdate * 1000).toISOString()
@@ -127,7 +127,7 @@ export function generateAuthorStructuredData(
         author: {
           "@type": "Person",
           name: author.name,
-          url: `${process.env.NEXT_PUBLIC_WEBSITE_URL}/authors/${author.slug}`,
+          url: `https://www.jfeed.com/authors/${author.slug}`,
         },
         image: article.image?.src,
       },

@@ -10,6 +10,7 @@ interface LinkContent {
   type: "link";
   url: string;
   children: Array<TextContent | LinkContent>;
+  popover?: string;
 }
 
 interface ParagraphContent {
@@ -27,19 +28,24 @@ type ContentNode = TextContent | LinkContent;
 const TextBlock: React.FC<TextBlockProps> = ({ content, showOutbrain }) => {
   const getInnerMostLink = (
     child: LinkContent
-  ): { url: string; text: string } => {
-    // If there are nested links, recursively get the innermost one
-    if ("type" in child.children[0] && child.children[0].type === "link") {
-      return getInnerMostLink(child.children[0] as LinkContent);
+  ): { url: string; text: string; popover?: string } => {
+    // Handle nested link structure
+    const childrenTexts: string[] = [];
+
+    for (const c of child.children) {
+      if ("text" in c) {
+        childrenTexts.push(c.text);
+      } else if (c.type === "link") {
+        const innerLink = getInnerMostLink(c);
+        childrenTexts.push(innerLink.text);
+      }
     }
 
-    // Get the text from the link's children
-    const text = child.children
-      .map((c) => ("text" in c ? c.text : ""))
-      .filter(Boolean)
-      .join("");
-
-    return { url: child.url, text };
+    return {
+      url: child.url,
+      text: childrenTexts.join(""),
+      popover: child.popover,
+    };
   };
 
   const renderChild = (child: ContentNode): React.ReactNode => {
@@ -48,21 +54,17 @@ const TextBlock: React.FC<TextBlockProps> = ({ content, showOutbrain }) => {
     }
 
     if (child.type === "link") {
-      const { url, text } = getInnerMostLink(child);
-      if (url && text) {
-        const finalUrl = url.replace(
-          process.env.NEXT_PUBLIC_WEBSITE_URL || "",
-          ""
-        );
-        return (
-          <Link
-            href={finalUrl}
-            className="text-primary hover:underline font-medium underline"
-          >
-            {text}
-          </Link>
-        );
-      }
+      const { url, text, popover } = getInnerMostLink(child);
+
+      return (
+        <Link
+          href={url}
+          className="text-primary hover:underline font-medium underline"
+          {...(popover ? { "data-popover": popover } : {})}
+        >
+          {text}
+        </Link>
+      );
     }
 
     return null;

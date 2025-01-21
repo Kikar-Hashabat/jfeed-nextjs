@@ -86,7 +86,7 @@ const Footer = () => {
               aria-label="JFeed Home"
             >
               <Image
-                src={`${process.env.NEXT_PUBLIC_WEBSITE_URL}/assets/images/logo/jfeed.png`}
+                src={`https://www.jfeed.com/assets/images/logo/jfeed.png`}
                 alt="JFeed Israel News"
                 title={"JFeed logo"}
                 width={150}

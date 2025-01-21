@@ -13,7 +13,7 @@ export function generateArticleMetadata(
   )?.content[0];
 
   const description = firstParagraph || article.subTitle || article.title;
-  const canonicalUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/${article.categories[0]?.slug}/${article.slug}`;
+  const canonicalUrl = `https://www.jfeed.com/${article.categories[0]?.slug}/${article.slug}`;
 
   return {
     title: article.titleShort || article.title,

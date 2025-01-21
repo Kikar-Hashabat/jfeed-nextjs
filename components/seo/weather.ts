@@ -15,7 +15,7 @@ export function generateWeatherMetadata(
   )}°C, ${
     weatherData.current.weather[0].description
   }. Get hourly and daily weather updates.`;
-  const canonicalUrl = `${process.env.NEXT_PUBLIC_WEBSITE_URL}/weather/${state.slug}/${city.slug}`;
+  const canonicalUrl = `https://www.jfeed.com/weather/${state.slug}/${city.slug}`;
 
   return {
     title,
@@ -60,7 +60,7 @@ export function generateWeatherStructuredData(
   state: State,
   weatherData: WeatherResponse
 ) {
-  const pageUrl = `${process.env.NEXT_PUBLIC_WEBSITE_URL}/weather/${state.slug}/${city.slug}`;
+  const pageUrl = `https://www.jfeed.com/weather/${state.slug}/${city.slug}`;
 
   // Current conditions for schema
   const current = weatherData.current;
@@ -78,9 +78,9 @@ export function generateWeatherStructuredData(
         description: `Current weather conditions: ${currentTemp}°C, ${currentCondition}`,
         isPartOf: {
           "@type": "WebSite",
-          "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/#website`,
+          "@id": `https://www.jfeed.com/#website`,
           name: "JFeed",
-          url: `${process.env.NEXT_PUBLIC_WEBSITE_URL}/`,
+          url: `https://www.jfeed.com/`,
         },
         datePublished: new Date().toISOString(),
         dateModified: new Date().toISOString(),
@@ -92,7 +92,7 @@ export function generateWeatherStructuredData(
             "@type": "ListItem",
             position: 1,
             item: {
-              "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/`,
+              "@id": `https://www.jfeed.com/`,
               name: "Home",
             },
           },
@@ -100,7 +100,7 @@ export function generateWeatherStructuredData(
             "@type": "ListItem",
             position: 2,
             item: {
-              "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/weather`,
+              "@id": `https://www.jfeed.com/weather`,
               name: "Weather",
             },
           },
@@ -108,7 +108,7 @@ export function generateWeatherStructuredData(
             "@type": "ListItem",
             position: 3,
             item: {
-              "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/weather/${state.slug}`,
+              "@id": `https://www.jfeed.com/weather/${state.slug}`,
               name: state.name,
             },
           },

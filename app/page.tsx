@@ -33,9 +33,9 @@ export const metadata: Metadata = {
     type: "website",
   },
   alternates: {
-    canonical: process.env.NEXT_PUBLIC_WEBSITE_URL,
+    canonical: "https://www.jfeed.com",
     types: {
-      "application/rss+xml": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/v1/rss/articles/latest/rss2`,
+      "application/rss+xml": `https://www.jfeed.com/v1/rss/articles/latest/rss2`,
     },
   },
 };

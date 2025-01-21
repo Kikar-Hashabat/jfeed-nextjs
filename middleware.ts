@@ -11,10 +11,12 @@ interface CacheEntry {
 class APICache {
   private cache: Map<string, CacheEntry>;
   private readonly ttl: number;
+  private readonly maxSize: number;
 
-  constructor(ttl: number) {
+  constructor(ttl: number, maxSize = 1000) {
     this.cache = new Map();
     this.ttl = ttl;
+    this.maxSize = maxSize;
     // Clean up expired entries every minute
     setInterval(() => this.cleanup(), 60_000);
   }
@@ -34,6 +36,14 @@ class APICache {
   ): Promise<T | null> {
     const now = Date.now();
     const cached = this.cache.get(key);
+
+    // Check cache size and remove oldest entries if necessary
+    if (this.cache.size >= this.maxSize) {
+      const oldest = [...this.cache.entries()]
+        .sort(([, a], [, b]) => a.timestamp - b.timestamp)
+        .slice(0, Math.floor(this.maxSize * 0.2));
+      oldest.forEach(([key]) => this.cache.delete(key));
+    }
 
     if (cached && now - cached.timestamp < this.ttl) {
       return cached.data as T;
@@ -88,6 +98,14 @@ export async function middleware(request: NextRequest) {
   try {
     const url = request.nextUrl;
     const pathname = url.pathname;
+
+    // Handle AMP redirects
+    if (pathname.includes("/_amp/")) {
+      const newPath = pathname.replace("/_amp/", "/");
+      return NextResponse.redirect(new URL(newPath, request.url), {
+        status: 301, // Permanent redirect
+      });
+    }
 
     // Early return for static routes and files
     const firstSegment = pathname.split("/")[1] || "";
@@ -187,7 +205,17 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    return NextResponse.next();
+    // Add security headers
+    const response = NextResponse.next();
+    response.headers.set("X-Frame-Options", "DENY");
+    response.headers.set("X-Content-Type-Options", "nosniff");
+    response.headers.set("Referrer-Policy", "origin-when-cross-origin");
+    response.headers.set(
+      "Permissions-Policy",
+      "camera=(), microphone=(), geolocation=()"
+    );
+
+    return response;
   } catch (error) {
     console.error("Middleware error:", error);
     // Only redirect to homepage on server errors, not on client errors
