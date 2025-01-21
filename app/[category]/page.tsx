@@ -1,4 +1,4 @@
-import { Category } from "@/types";
+import { Category } from "@/types/category";
 import ArticleItemFullWidth from "@/components/article-item/ArticleItemFullWidth";
 import ArticleItemMain from "@/components/article-item/ArticleItemMain";
 import { AsideSection } from "@/components/article-item/AsideSection";
@@ -8,50 +8,77 @@ import { getHomeData } from "@/utils/home-data";
 import { CategorySection } from "@/components/pages/home/CategorySection";
 import Pagination from "@/components/Pagination";
 import Title from "@/components/Title";
+import { generateCategoryMetadata } from "@/components/seo/category";
 
 const ITEMS_PER_PAGE = 20;
 const SUBCATEGORY_ARTICLES_COUNT = 6;
 const MAIN_ARTICLES_COUNT = 5;
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ category: string }>;
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const [resolvedParams, resolvedSearchParams] = await Promise.all([
+    params,
+    searchParams,
+  ]);
+
+  const categorySlug = resolvedParams.category;
+  const currentPage = resolvedSearchParams.page
+    ? parseInt(resolvedSearchParams.page)
+    : 1;
+
+  try {
+    const category = await getCategoryBySlug(categorySlug);
+    return generateCategoryMetadata(category, currentPage);
+  } catch (error) {
+    console.error("Error generating category metadata:", error);
+    return {
+      title: "Category Not Found",
+      robots: { index: false, follow: true },
+    };
+  }
+}
 
 async function getCategoryWithSubArticles(
   category: Category,
   existingIds: Set<number>,
   currentPage: number
 ) {
-  // If there are no subcategories, fetch paginated articles
-  if (!category.subCategories || category.subCategories.length === 0) {
-    const articles = await getArticlesV2({
-      categorySlug: category.slug,
-      limit: ITEMS_PER_PAGE,
-      page: currentPage - 1,
-    });
-
-    // Filter out already seen articles
-    const filteredArticles = articles.filter(
-      (article) => !existingIds.has(article.id)
-    );
-    filteredArticles.forEach((article) => existingIds.add(article.id));
-
-    return {
-      mainArticles: filteredArticles,
-      subCategoriesWithArticles: [],
-      hasMore: articles.length === ITEMS_PER_PAGE,
-    };
-  }
-
   // Fetch main category articles with a higher limit to ensure we get enough unique ones
   const mainArticles = await getArticlesV2({
     categorySlug: category.slug,
-    limit: MAIN_ARTICLES_COUNT * 2, // Fetch more to ensure we have enough after filtering
+    limit: Math.max(MAIN_ARTICLES_COUNT * 2, 4), // Ensure at least 4 articles are fetched
   });
 
-  // Filter and take only the first MAIN_ARTICLES_COUNT unique articles
-  const filteredMainArticles = mainArticles
-    .filter((article) => !existingIds.has(article.id))
-    .slice(0, MAIN_ARTICLES_COUNT);
+  // Filter and take only the unique articles
+  const filteredMainArticles = mainArticles.filter(
+    (article) => !existingIds.has(article.id)
+  );
 
   // Add main articles to seen IDs
   filteredMainArticles.forEach((article) => existingIds.add(article.id));
+
+  // If less than 4 articles, fetch more until we meet the minimum
+  while (filteredMainArticles.length < 4) {
+    const additionalArticles = await getArticlesV2({
+      categorySlug: category.slug,
+      limit: 4 - filteredMainArticles.length,
+      page: currentPage,
+    });
+
+    const uniqueAdditionalArticles = additionalArticles.filter(
+      (article) => !existingIds.has(article.id)
+    );
+
+    filteredMainArticles.push(...uniqueAdditionalArticles);
+    uniqueAdditionalArticles.forEach((article) => existingIds.add(article.id));
+
+    if (uniqueAdditionalArticles.length === 0) break; // No more articles available
+  }
 
   const subCategoriesWithArticles = await Promise.all(
     category.subCategories.map(async (subCategory) => {
@@ -59,18 +86,15 @@ async function getCategoryWithSubArticles(
       let page = 0;
       let hasMore = true;
 
-      // Keep fetching until we have enough unique articles or no more are available
       while (allArticles.length < SUBCATEGORY_ARTICLES_COUNT && hasMore) {
         const fetchedArticles = await getArticlesV2({
           categorySlug: subCategory.slug,
-          limit: SUBCATEGORY_ARTICLES_COUNT * 2, // Fetch more to account for filtering
+          limit: SUBCATEGORY_ARTICLES_COUNT * 2,
           page: page,
         });
 
-        // If we got fewer articles than requested, there are no more to fetch
         hasMore = fetchedArticles.length === SUBCATEGORY_ARTICLES_COUNT * 2;
 
-        // Filter out duplicates and add new unique articles
         const newUniqueArticles = fetchedArticles.filter(
           (article) => !existingIds.has(article.id)
         );
@@ -78,14 +102,11 @@ async function getCategoryWithSubArticles(
         allArticles.push(...newUniqueArticles);
         page++;
 
-        // Break if we've made too many attempts to prevent infinite loops
         if (page > 5) break;
       }
 
-      // Take exactly SUBCATEGORY_ARTICLES_COUNT articles
       const finalArticles = allArticles.slice(0, SUBCATEGORY_ARTICLES_COUNT);
 
-      // Add these articles to the seen IDs
       finalArticles.forEach((article) => existingIds.add(article.id));
 
       return {
@@ -96,7 +117,7 @@ async function getCategoryWithSubArticles(
   );
 
   return {
-    mainArticles: filteredMainArticles,
+    mainArticles: filteredMainArticles.slice(0, 4), // Ensure we return at least 4 articles
     subCategoriesWithArticles,
     hasMore: false,
   };

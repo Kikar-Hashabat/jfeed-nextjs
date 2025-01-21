@@ -4,9 +4,7 @@ import {
   Article,
   HomeMainContent,
   NavItem,
-  Tag,
   Author,
-  Category,
 } from "@/types";
 import {
   ArticleData,
@@ -14,6 +12,7 @@ import {
   CommentPayload,
   ReportPayload,
 } from "@/types/article";
+import { Category } from "@/types/category";
 import {
   HalachicTimesResponse,
   ShabbatTimesResponse,
@@ -21,6 +20,7 @@ import {
   WeatherForecastResponse,
   WeatherResponse,
 } from "@/types/locations";
+import { Tag } from "@/types/tag";
 import { XMLParser } from "fast-xml-parser";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;

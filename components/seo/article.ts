@@ -4,7 +4,6 @@ import {
   RecipeInstructionStep,
   RecipeSchema,
 } from "@/types/article";
-import { getWordCount } from "@/utils/article";
 import { Metadata } from "next";
 
 interface VideoObject {
@@ -105,7 +104,7 @@ export function generateArticleStructuredData(article: ArticleData) {
   const articleVideo = article.content.content.find(
     (block) => block.type === "video"
   );
-  let videos: VideoObject[] = [];
+  const videos: VideoObject[] = [];
 
   if (articleVideo && "urls" in articleVideo && article.subTitle) {
     videos.push({

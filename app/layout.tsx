@@ -111,7 +111,7 @@ export default function RootLayout({
           Skip to main content
         </a>
         <Header />
-        <main id="main-content" className="flex-grow pt-20">
+        <main id="main-content" className="flex-grow pt-20 min-h-screen">
           <div className="max-w-6xl mx-auto px-4">{children}</div>
         </main>
         <Footer />

@@ -5,43 +5,74 @@ export function generateAuthorMetadata(
   author: Author,
   currentPage: number
 ): Metadata {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_WEBSITE_URL || "https://www.jfeed.com";
   const isFirstPage = currentPage === 1;
-  const baseUrl = `https://www.jfeed.com/authors/${author.slug}`;
-  const canonicalUrl = isFirstPage ? baseUrl : `${baseUrl}?page=${currentPage}`;
+  const authorUrl = `${baseUrl}/authors/${author.slug}`;
+  const canonicalUrl = isFirstPage
+    ? authorUrl
+    : `${authorUrl}?page=${currentPage}`;
 
-  const title = isFirstPage
-    ? `${author.name} - JFeed Author`
-    : `${author.name} - Page ${currentPage} | JFeed`;
+  // Enhanced title construction
+  const displayTitle = author.name;
+  const pageTitle = isFirstPage
+    ? `${displayTitle} - JFeed Israel News Author`
+    : `${displayTitle} - Page ${currentPage} | JFeed Israel News`;
 
-  const description = author.bio
-    ? `${author.bio.slice(0, 155)}...`
-    : `Read the latest articles by ${author.name} on JFeed. Stay updated with their insights and coverage on Jewish news and culture.`;
+  // Enhanced description construction
+  const description = (
+    author.bio
+      ? `${author.bio.slice(0, 155)}${author.bio.length > 155 ? "..." : ""}`
+      : `Read the latest articles by ${author.name} on JFeed - Israel News. Stay updated with their insights and coverage on Israeli news, Jewish culture, and current events.`
+  ).trim();
+
+  // Enhanced keywords handling
+  const defaultKeywords = [
+    author.name,
+    "JFeed author",
+    "Israel News",
+    "Jewish news",
+    "Jewish culture",
+    author.role,
+  ].filter(Boolean);
 
   return {
-    title,
-    description,
-    keywords: `${author.name}, Jewish news, Jewish culture, JFeed author`,
+    title: pageTitle,
+    description: `${description} - JFeed Israel News`,
+    keywords: defaultKeywords.join(", "),
+    authors: [{ name: author.name, url: canonicalUrl }],
     openGraph: {
-      title: author.name,
-      description,
+      title: `${displayTitle} - JFeed Israel News`,
+      description: `${description} - JFeed Israel News`,
       url: canonicalUrl,
-      siteName: "JFeed",
-      images: [
-        {
-          url: author.image || "/logo/jfeed-logo_512x512.png",
-          width: 512,
-          height: 512,
-          alt: `${author.name}'s profile picture`,
-        },
-      ],
+      siteName: "JFeed Israel News",
+      images: author.image
+        ? [
+            {
+              url: author.image,
+              width: 512,
+              height: 512,
+              alt: `${author.name} - JFeed Israel News Author`,
+            },
+          ]
+        : [
+            {
+              url: "/logo/jfeed-logo_512x512.png",
+              width: 512,
+              height: 512,
+              alt: "JFeed Israel News Logo",
+            },
+          ],
       type: "profile",
+      locale: "en_US",
     },
     twitter: {
       card: "summary_large_image",
-      title: author.name,
-      description,
+      title: `${displayTitle} - JFeed Israel News`,
+      description: `${description} - JFeed Israel News`,
       images: [author.image || "/logo/jfeed-logo_512x512.png"],
-      creator: author.twitter ? author.twitter.split("/").pop() : undefined,
+      site: "@JFeedNews",
+      creator: author.twitter ? author.twitter.split("/").pop() : "@JFeedNews",
     },
     robots: {
       index: true,
@@ -52,7 +83,11 @@ export function generateAuthorMetadata(
     },
     alternates: {
       canonical: canonicalUrl,
+      ...(currentPage > 1 && {
+        prev: authorUrl + (currentPage > 2 ? `?page=${currentPage - 1}` : ""),
+      }),
     },
+    viewport: "width=device-width, initial-scale=1",
   };
 }
 
@@ -60,24 +95,69 @@ export function generateAuthorStructuredData(
   author: Author,
   articles: Article[]
 ) {
-  // Person structured data
+  const baseUrl =
+    process.env.NEXT_PUBLIC_WEBSITE_URL || "https://www.jfeed.com";
+  const authorUrl = `${baseUrl}/authors/${author.slug}`;
+
+  // Enhanced person structured data
   const personData = {
     "@context": "https://schema.org",
     "@type": "Person",
-    "@id": `https://www.jfeed.com/authors/${author.slug}#person`,
+    "@id": `${authorUrl}#person`,
     name: author.name,
     description: author.bio,
-    image: author.image,
+    image: {
+      "@type": "ImageObject",
+      url: author.image || `${baseUrl}/logo/jfeed-logo_512x512.png`,
+      width: 512,
+      height: 512,
+    },
     jobTitle: author.role,
-    url: `https://www.jfeed.com/authors/${author.slug}`,
-    sameAs: [
-      author.twitter && author.twitter,
-      author.facebook && author.facebook,
-      author.wikipedia && author.wikipedia,
-    ].filter(Boolean),
+    url: authorUrl,
+    worksFor: {
+      "@type": "Organization",
+      name: "JFeed Israel News",
+      url: baseUrl,
+      logo: {
+        "@type": "ImageObject",
+        url: `${baseUrl}/logo/jfeed-logo_512x512.png`,
+        width: 512,
+        height: 512,
+      },
+    },
+    sameAs: [author.twitter, author.facebook, author.wikipedia].filter(Boolean),
+    email: author.email,
   };
 
-  // Generate breadcrumb structured data
+  // Enhanced webpage structured data
+  const webpageData = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    "@id": `${authorUrl}#webpage`,
+    url: authorUrl,
+    name: `${author.name} - JFeed Israel News Author`,
+    description:
+      author.bio || `Articles by ${author.name} on JFeed - Israel News`,
+    isPartOf: {
+      "@type": "WebSite",
+      "@id": `${baseUrl}/#website`,
+      name: "JFeed Israel News",
+      url: baseUrl,
+    },
+    about: {
+      "@id": `${authorUrl}#person`,
+    },
+    primaryImageOfPage: author.image
+      ? {
+          "@type": "ImageObject",
+          url: author.image,
+          width: 512,
+          height: 512,
+        }
+      : undefined,
+  };
+
+  // Enhanced breadcrumb structured data
   const breadcrumbData = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -86,7 +166,7 @@ export function generateAuthorStructuredData(
         "@type": "ListItem",
         position: 1,
         item: {
-          "@id": process.env.NEXT_PUBLIC_WEBSITE_URL,
+          "@id": baseUrl,
           name: "Home",
         },
       },
@@ -94,7 +174,7 @@ export function generateAuthorStructuredData(
         "@type": "ListItem",
         position: 2,
         item: {
-          "@id": `https://www.jfeed.com/authors`,
+          "@id": `${baseUrl}/authors`,
           name: "Authors",
         },
       },
@@ -102,15 +182,15 @@ export function generateAuthorStructuredData(
         "@type": "ListItem",
         position: 3,
         item: {
-          "@id": `https://www.jfeed.com/authors/${author.slug}`,
+          "@id": authorUrl,
           name: author.name,
         },
       },
     ],
   };
 
-  // Generate ItemList for articles
-  const itemListData = {
+  // Enhanced article list structured data
+  const articleListData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
     itemListElement: articles.map((article, index) => ({
@@ -119,23 +199,45 @@ export function generateAuthorStructuredData(
       item: {
         "@type": "Article",
         headline: article.title,
-        url: `https://www.jfeed.com/${article.categorySlug}/${article.slug}`,
+        description: article.subTitle || article.titleShort,
+        url: `${baseUrl}/${article.categorySlug}/${article.slug}`,
         datePublished: new Date(article.time * 1000).toISOString(),
         dateModified: article.lastUpdate
           ? new Date(article.lastUpdate * 1000).toISOString()
           : new Date(article.time * 1000).toISOString(),
         author: {
           "@type": "Person",
+          "@id": `${authorUrl}#person`,
           name: author.name,
-          url: `https://www.jfeed.com/authors/${author.slug}`,
+          url: authorUrl,
         },
-        image: article.image?.src,
+        publisher: {
+          "@type": "Organization",
+          name: "JFeed Israel News",
+          url: baseUrl,
+          logo: {
+            "@type": "ImageObject",
+            url: `${baseUrl}/logo/jfeed-logo_512x512.png`,
+            width: 512,
+            height: 512,
+          },
+        },
+        ...(article.image?.src && {
+          image: {
+            "@type": "ImageObject",
+            url: article.image.src,
+            width: article.image.width,
+            height: article.image.height,
+            alt: article.image.alt || article.title,
+          },
+        }),
       },
     })),
   };
 
+  // Return combined structured data
   return {
     "@context": "https://schema.org",
-    "@graph": [personData, breadcrumbData, itemListData],
+    "@graph": [personData, webpageData, breadcrumbData, articleListData],
   };
 }
