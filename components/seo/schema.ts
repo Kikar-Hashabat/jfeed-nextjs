@@ -4,13 +4,13 @@ export function generateHomeStructuredData() {
     "@graph": [
       {
         "@type": "Organization",
-        url: "https://www.jfeed.com",
+        url: process.env.NEXT_PUBLIC_WEBSITE_URL,
         logo: "/logo/jfeed-logo_512x512.png",
       },
       {
         "@type": "WebPage",
         name: "JFeed - Israel News",
-        url: "https://www.jfeed.com/",
+        url: process.env.NEXT_PUBLIC_WEBSITE_URL,
         breadcrumb: {
           "@type": "BreadcrumbList",
           itemListElement: [
@@ -19,7 +19,7 @@ export function generateHomeStructuredData() {
               position: 1,
               item: {
                 "@type": "WebPage",
-                "@id": "https://www.jfeed.com/",
+                "@id": process.env.NEXT_PUBLIC_WEBSITE_URL,
                 name: "Home",
               },
             },

@@ -11,9 +11,12 @@ const INITIAL_ARTICLES_BATCH_LIMIT = 50;
 const ARTICLES_BATCH_LIMIT = 5;
 
 async function getCategories() {
-  const res = await fetch("https://a.jfeed.com/v1/sitemap/categories", {
-    next: { revalidate: 3600 },
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/v1/sitemap/categories`,
+    {
+      next: { revalidate: 3600 },
+    }
+  );
   if (!res.ok) throw new Error("Failed to fetch categories");
   const text = await res.text();
 

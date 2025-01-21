@@ -28,7 +28,7 @@ export function generateHalachicTimesMetadata(
 
   const title = `Halachic Times for ${city.name}, ${city.state.name} - ${formattedDate}`;
   const description = `Today's Halachic times for ${city.name}, ${city.state.name}: Sunrise: ${keyTimes.sunrise}, Sunset: ${keyTimes.sunset}, Latest Shema: ${keyTimes.shema}, Latest Shacharit: ${keyTimes.tfilla}. Timezone: ${data.location.tzid}.`;
-  const canonicalUrl = `https://www.jfeed.com/halacha/${city.state.slug}/${city.slug}/${date}`;
+  const canonicalUrl = `${process.env.NEXT_PUBLIC_WEBSITE_URL}/halacha/${city.state.slug}/${city.slug}/${date}`;
 
   return {
     title,
@@ -92,7 +92,7 @@ export function generateShabbatTimesMetadata(
     havdalah ? `Havdalah: ${havdalah.date}` : ""
   }. Timezone: ${data.location.tzid}.`;
 
-  const canonicalUrl = `https://www.jfeed.com/shabbat/${city.state.slug}/${city.slug}/${date}`;
+  const canonicalUrl = `${process.env.NEXT_PUBLIC_WEBSITE_URL}/shabbat/${city.state.slug}/${city.slug}/${date}`;
 
   return {
     title,
@@ -141,7 +141,7 @@ export function generateHalachicTimesStructuredData(
   date: string,
   data: HalachicTimesResponse
 ) {
-  const pageUrl = `https://www.jfeed.com/halacha/${city.state.slug}/${city.slug}/${date}`;
+  const pageUrl = `${process.env.NEXT_PUBLIC_WEBSITE_URL}/halacha/${city.state.slug}/${city.slug}/${date}`;
 
   return {
     "@context": "https://schema.org",
@@ -154,9 +154,9 @@ export function generateHalachicTimesStructuredData(
         description: `Halachic times including Sunrise: ${data.times.sunrise}, Sunset: ${data.times.sunset}`,
         isPartOf: {
           "@type": "WebSite",
-          "@id": "https://www.jfeed.com/#website",
+          "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/#website`,
           name: "JFeed",
-          url: "https://www.jfeed.com",
+          url: `${process.env.NEXT_PUBLIC_WEBSITE_URL}/`,
         },
         datePublished: new Date().toISOString(),
         dateModified: new Date().toISOString(),
@@ -169,7 +169,7 @@ export function generateHalachicTimesStructuredData(
             "@type": "ListItem",
             position: 1,
             item: {
-              "@id": "https://www.jfeed.com/",
+              "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/`,
               name: "Home",
             },
           },
@@ -177,7 +177,7 @@ export function generateHalachicTimesStructuredData(
             "@type": "ListItem",
             position: 2,
             item: {
-              "@id": "https://www.jfeed.com/halacha",
+              "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/halacha`,
               name: "Halachic Times",
             },
           },
@@ -185,7 +185,7 @@ export function generateHalachicTimesStructuredData(
             "@type": "ListItem",
             position: 3,
             item: {
-              "@id": `https://www.jfeed.com/halacha/${city.state.slug}`,
+              "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/halacha/${city.state.slug}`,
               name: city.state.name,
             },
           },
@@ -208,7 +208,7 @@ export function generateShabbatTimesStructuredData(
   date: string,
   data: ShabbatTimesResponse
 ) {
-  const pageUrl = `https://www.jfeed.com/shabbat/${city.state.slug}/${city.slug}/${date}`;
+  const pageUrl = `${process.env.NEXT_PUBLIC_WEBSITE_URL}/shabbat/${city.state.slug}/${city.slug}/${date}`;
 
   // Find relevant Shabbat information
   const candleLighting = data.items.find((item) => item.category === "candles");
@@ -228,9 +228,9 @@ export function generateShabbatTimesStructuredData(
         }${havdalah ? `Havdalah: ${havdalah.date}` : ""}`,
         isPartOf: {
           "@type": "WebSite",
-          "@id": "https://www.jfeed.com/#website",
+          "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/#website`,
           name: "JFeed",
-          url: "https://www.jfeed.com",
+          url: `${process.env.NEXT_PUBLIC_WEBSITE_URL}/`,
         },
         datePublished: new Date().toISOString(),
         dateModified: new Date().toISOString(),
@@ -259,7 +259,7 @@ export function generateShabbatTimesStructuredData(
             "@type": "ListItem",
             position: 1,
             item: {
-              "@id": "https://www.jfeed.com/",
+              "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/`,
               name: "Home",
             },
           },
@@ -267,7 +267,7 @@ export function generateShabbatTimesStructuredData(
             "@type": "ListItem",
             position: 2,
             item: {
-              "@id": "https://www.jfeed.com/shabbat",
+              "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/shabbat`,
               name: "Shabbat Times",
             },
           },
@@ -275,7 +275,7 @@ export function generateShabbatTimesStructuredData(
             "@type": "ListItem",
             position: 3,
             item: {
-              "@id": `https://www.jfeed.com/shabbat/${city.state.slug}`,
+              "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/shabbat/${city.state.slug}`,
               name: city.state.name,
             },
           },

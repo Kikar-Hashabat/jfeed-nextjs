@@ -8,17 +8,17 @@ export function generateCategoryStructuredData(
   const categoryData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "@id": `https://www.jfeed.com/${category.slug}`,
+    "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${category.slug}`,
     name: category.title,
     description:
       category.metaDescription ||
       `Latest news and articles from ${category.name}`,
-    url: `https://www.jfeed.com/${category.slug}`,
+    url: `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${category.slug}`,
     isPartOf: {
       "@type": "WebSite",
-      "@id": "https://www.jfeed.com/#website",
+      "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/#website`,
       name: "JFeed",
-      url: "https://www.jfeed.com",
+      url: process.env.NEXT_PUBLIC_WEBSITE_URL,
     },
   };
 
@@ -28,7 +28,7 @@ export function generateCategoryStructuredData(
       "@type": "ListItem",
       position: 1,
       item: {
-        "@id": "https://www.jfeed.com/",
+        "@id": process.env.NEXT_PUBLIC_WEBSITE_URL,
         name: "Home",
       },
     },
@@ -36,7 +36,7 @@ export function generateCategoryStructuredData(
       "@type": "ListItem",
       position: index + 2,
       item: {
-        "@id": `https://www.jfeed.com/${parent.slug}`,
+        "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${parent.slug}`,
         name: parent.name,
       },
     })),
@@ -44,7 +44,7 @@ export function generateCategoryStructuredData(
       "@type": "ListItem",
       position: category.parents.length + 2,
       item: {
-        "@id": `https://www.jfeed.com/${category.slug}`,
+        "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${category.slug}`,
         name: category.name,
       },
     },
@@ -66,7 +66,7 @@ export function generateCategoryStructuredData(
       item: {
         "@type": "Article",
         headline: article.title,
-        url: `https://www.jfeed.com/${article.categorySlug}/${article.slug}`,
+        url: `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${article.categorySlug}/${article.slug}`,
         datePublished: new Date(article.time * 1000).toISOString(),
         dateModified: article.lastUpdate
           ? new Date(article.lastUpdate * 1000).toISOString()
@@ -88,7 +88,7 @@ export function generateCategoryMetadata(
   currentPage: number
 ): Metadata {
   const isFirstPage = currentPage === 1;
-  const baseUrl = `https://www.jfeed.com/${category.slug}`;
+  const baseUrl = `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${category.slug}`;
   const canonicalUrl = isFirstPage ? baseUrl : `${baseUrl}?page=${currentPage}`;
 
   const title = isFirstPage

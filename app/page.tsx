@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     title: "JFeed - Israel News",
     description:
       "JFEED - the latest news and headlines, news from the Jewish world and Israel, weather, TV, radio highlights and much more from across the globe.",
-    url: "https://www.jfeed.com",
+    url: process.env.NEXT_PUBLIC_WEBSITE_URL,
     siteName: "JFeed",
     images: [
       {
@@ -33,9 +33,9 @@ export const metadata: Metadata = {
     type: "website",
   },
   alternates: {
-    canonical: "https://www.jfeed.com",
+    canonical: process.env.NEXT_PUBLIC_WEBSITE_URL,
     types: {
-      "application/rss+xml": "https://a.jfeed.com/v1/rss/articles/latest/rss2",
+      "application/rss+xml": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/v1/rss/articles/latest/rss2`,
     },
   },
 };

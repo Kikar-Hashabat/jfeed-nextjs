@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     description:
       "Your Modern News Feed - Stay informed with the latest Jewish news, community updates, and cultural insights.",
     type: "website",
-    canonical: "https://www.jfeed.com",
+    canonical: process.env.NEXT_PUBLIC_WEBSITE_URL,
   }),
 };
 
@@ -77,10 +77,10 @@ export default function RootLayout({
       <head>
         <link
           rel="preconnect"
-          href="https://a.jfeed.com"
+          href={process.env.NEXT_PUBLIC_API_URL}
           crossOrigin="anonymous"
         />
-        <link rel="dns-prefetch" href="https://a.jfeed.com" />
+        <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_WEBSITE_URL} />
         <link
           rel="preload"
           href="/logo/jfeed-new.png"

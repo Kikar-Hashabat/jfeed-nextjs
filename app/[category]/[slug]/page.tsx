@@ -18,6 +18,7 @@ import { getWordCount } from "@/utils/article";
 import Comments from "@/components/pages/article/comments/Comments";
 import RelatedArticles from "@/components/pages/article/RelatedArticles";
 import RelatedCategories from "@/components/pages/article/RelatedCategories";
+import { OutbrainWidget } from "@/components/ads/Outbrain";
 
 type Params = {
   slug: string;
@@ -204,6 +205,8 @@ export default async function ArticlePage({
             <Comments articleId={article.id} totalComments={article.comments} />
 
             <hr className="my-3" />
+
+            <OutbrainWidget dataWidgetId="AR_1" />
 
             <RelatedArticles
               title="Also of Interest"

@@ -5,7 +5,7 @@ import { Article } from "@/types";
 
 export function generateTagMetadata(tag: Tag, currentPage: number): Metadata {
   const isFirstPage = currentPage === 1;
-  const baseUrl = `https://www.jfeed.com/tags/${tag.slug}`;
+  const baseUrl = `${process.env.NEXT_PUBLIC_WEBSITE_URL}/tags/${tag.slug}`;
   const canonicalUrl = isFirstPage ? baseUrl : `${baseUrl}?page=${currentPage}`;
 
   // Get the first paragraph text if available
@@ -96,11 +96,11 @@ export function generateTagStructuredData(tag: Tag, articles: Article[]) {
   const tagData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "@id": `https://www.jfeed.com/tags/${tag.slug}#webpage`,
+    "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/tags/${tag.slug}#webpage`,
     name: tag.title || tag.name,
     headline: tag.metaTitle || tag.title || tag.name,
     description,
-    url: `https://www.jfeed.com/tags/${tag.slug}`,
+    url: `${process.env.NEXT_PUBLIC_WEBSITE_URL}/tags/${tag.slug}`,
     datePublished: tag.created,
     dateModified: tag.updated,
     ...(tag.imageSrc && { image: tag.imageSrc }),
@@ -116,7 +116,7 @@ export function generateTagStructuredData(tag: Tag, articles: Article[]) {
         item: {
           "@type": "Article",
           headline: article.title,
-          url: `https://www.jfeed.com/${article.categorySlug}/${article.slug}`,
+          url: `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${article.categorySlug}/${article.slug}`,
           datePublished: new Date(article.time * 1000).toISOString(),
           dateModified: article.lastUpdate
             ? new Date(article.lastUpdate * 1000).toISOString()
@@ -128,9 +128,9 @@ export function generateTagStructuredData(tag: Tag, articles: Article[]) {
     },
     isPartOf: {
       "@type": "WebSite",
-      "@id": "https://www.jfeed.com/#website",
+      "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/#website`,
       name: "JFeed",
-      url: "https://www.jfeed.com",
+      url: process.env.NEXT_PUBLIC_WEBSITE_URL,
     },
   };
 
@@ -143,7 +143,7 @@ export function generateTagStructuredData(tag: Tag, articles: Article[]) {
         "@type": "ListItem",
         position: 1,
         item: {
-          "@id": "https://www.jfeed.com/",
+          "@id": process.env.NEXT_PUBLIC_WEBSITE_URL,
           name: "Home",
         },
       },
@@ -151,7 +151,7 @@ export function generateTagStructuredData(tag: Tag, articles: Article[]) {
         "@type": "ListItem",
         position: 2,
         item: {
-          "@id": "https://www.jfeed.com/tags",
+          "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/tags`,
           name: "Tags",
         },
       },
@@ -159,7 +159,7 @@ export function generateTagStructuredData(tag: Tag, articles: Article[]) {
         "@type": "ListItem",
         position: 3,
         item: {
-          "@id": `https://www.jfeed.com/tags/${tag.slug}`,
+          "@id": `${process.env.NEXT_PUBLIC_WEBSITE_URL}/tags/${tag.slug}`,
           name: tag.name,
         },
       },

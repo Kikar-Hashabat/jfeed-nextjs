@@ -23,6 +23,8 @@ import {
 } from "@/types/locations";
 import { XMLParser } from "fast-xml-parser";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 async function fetchData<T>(url: string): Promise<T> {
   const res = await fetch(url, { next: { revalidate: 60 } });
 
@@ -33,19 +35,15 @@ async function fetchData<T>(url: string): Promise<T> {
 }
 
 export async function getNavigation(): Promise<NavItem[]> {
-  return fetchData<NavItem[]>("https://a.jfeed.com/v1/lists/nav");
+  return fetchData<NavItem[]>(`${API_URL}/v1/lists/nav`);
 }
 
 export async function getHomeFrontal(): Promise<Article[]> {
-  return fetchData<Article[]>(
-    "https://a.jfeed.com/v1/articles-list/home-frontal"
-  );
+  return fetchData<Article[]>(`${API_URL}/v1/articles-list/home-frontal`);
 }
 
 export async function getHomeMainContent(): Promise<HomeMainContent[]> {
-  return fetchData<HomeMainContent[]>(
-    "https://a.jfeed.com/v1/lists/home-main-content"
-  );
+  return fetchData<HomeMainContent[]>(`${API_URL}/v1/lists/home-main-content`);
 }
 
 export async function getArticlesV2(
@@ -53,38 +51,36 @@ export async function getArticlesV2(
 ): Promise<Article[]> {
   const queryParams = new URLSearchParams(params as Record<string, string>);
   return fetchData<Article[]>(
-    `https://a.jfeed.com/V2/articles?${queryParams.toString()}`
+    `${API_URL}/V2/articles?${queryParams.toString()}`
   );
 }
 
 export async function getArticle(slug: string): Promise<ArticleData> {
-  return fetchData<ArticleData>(`https://a.jfeed.com/v2/articles/${slug}`);
+  return fetchData<ArticleData>(`${API_URL}/v2/articles/${slug}`);
 }
 
 export async function getArticleComments(articleId: string): Promise<Comment> {
-  return fetchData<Comment>(
-    `https://a.jfeed.com/v2/articles/${articleId}/comments`
-  );
+  return fetchData<Comment>(`${API_URL}/v2/articles/${articleId}/comments`);
 }
 
 export async function getTag(slug: string): Promise<Tag> {
-  return fetchData<Tag>(`https://a.jfeed.com/v1/tags/${slug}`);
+  return fetchData<Tag>(`${API_URL}/v1/tags/${slug}`);
 }
 
 export async function getPopularTags(): Promise<Tag[]> {
-  return fetchData<Tag[]>(`https://a.jfeed.com/v1/tags/popular`);
+  return fetchData<Tag[]>(`${API_URL}/v1/tags/popular`);
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category> {
-  return fetchData<Category>(`https://a.jfeed.com/v2/categories/${slug}`);
+  return fetchData<Category>(`${API_URL}/v2/categories/${slug}`);
 }
 
 export async function getAuthor(slug: string): Promise<Author> {
-  return fetchData<Author>(`https://a.jfeed.com/v1/authors/${slug}`);
+  return fetchData<Author>(`${API_URL}/v1/authors/${slug}`);
 }
 
 export async function getCategories() {
-  const res = await fetch("https://a.jfeed.com/v1/sitemap/categories", {
+  const res = await fetch(`${API_URL}/v1/sitemap/categories`, {
     next: { revalidate: 3600 },
   });
   if (!res.ok) throw new Error("Failed to fetch categories");
@@ -111,22 +107,17 @@ export async function submitComment(
   console.log("Submitting comment:", payload);
 
   try {
-    const res = await fetch(
-      `https://a.jfeed.com/v2/articles/${articleId}/comments`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      }
-    );
+    const res = await fetch(`${API_URL}/v2/articles/${articleId}/comments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
-    // Log the response status and status text
     console.log("Response status:", res.status, res.statusText);
 
     if (!res.ok) {
-      // Try to get error details from response
       const errorText = await res.text();
       console.error("Error response:", errorText);
 
@@ -155,7 +146,7 @@ export async function reportComment(
   payload: ReportPayload
 ): Promise<void> {
   const res = await fetch(
-    `https://a.jfeed.com/v2/articles/${articleId}/comments/${commentId}/report`,
+    `${API_URL}/v2/articles/${articleId}/comments/${commentId}/report`,
     {
       method: "POST",
       headers: {

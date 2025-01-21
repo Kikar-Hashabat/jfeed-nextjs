@@ -107,7 +107,7 @@ export function generateArticleStructuredData(article: ArticleData) {
 // Returns breadcrumb structured data for the article
 export function generateBreadcrumbStructuredData(article: ArticleData) {
   const items = [];
-  const baseUrl = "https://www.jfeed.com";
+  const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL;
 
   // Add home
   items.push({

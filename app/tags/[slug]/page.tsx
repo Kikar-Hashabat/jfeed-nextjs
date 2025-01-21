@@ -46,13 +46,21 @@ async function getTagData(
 }> {
   const articles = await getArticlesV2({
     tagId,
-    page: page - 1,
     limit: ITEMS_PER_PAGE,
+    page: page - 1,
   });
 
-  // Filter out any articles that we've already shown in homeFrontal or mostRead
+  // If we have only one article, return it regardless of whether it exists elsewhere
+  if (articles.length === 1) {
+    return {
+      articles,
+      hasMore: false,
+    };
+  }
+
+  // For multiple articles, filter out duplicates but ensure we keep at least one
   const filteredArticles = articles.filter(
-    (article) => !existingIds.has(article.id)
+    (article, index) => index === 0 || !existingIds.has(article.id)
   );
 
   return {
@@ -68,7 +76,6 @@ export default async function TagPage({
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ page?: string }>;
 }) {
-  // Wait for both params and searchParams to resolve
   const [resolvedParams, resolvedSearchParams] = await Promise.all([
     params,
     searchParams,
@@ -79,20 +86,14 @@ export default async function TagPage({
     ? parseInt(resolvedSearchParams.page)
     : 1;
 
-  // First get the tag to get the ID and details
   const tag = await getTag(slug);
-
-  // Get home data for the sidebar and to track seen articles
   const { homeFrontal, mostRead, seenArticleIds } = await getHomeData();
-
-  // Load tag articles for current page
   const { articles, hasMore } = await getTagData(
     tag.id.toString(),
     currentPage,
     seenArticleIds
   );
 
-  // Add these articles to seenArticleIds
   articles.forEach((article) => {
     seenArticleIds.add(article.id);
   });
@@ -101,7 +102,6 @@ export default async function TagPage({
 
   return (
     <>
-      {/* Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -112,7 +112,7 @@ export default async function TagPage({
       <main className="container mx-auto">
         <Breadcrumbs items={breadcrumbs} />
         <hr className="my-3" />
-        {/* Tag Header */}
+
         <div className="border-b border-gray-300 mb-3">
           <Title
             title={tag.title || tag.name}
@@ -120,7 +120,7 @@ export default async function TagPage({
             tag="h1"
           />
           {tag.subtitle && (
-            <p className="text-lg text-gray-700 mb-4  text-center font-semibold">
+            <p className="text-lg text-gray-700 mb-4 text-center font-semibold">
               {tag.subtitle}
             </p>
           )}
@@ -139,7 +139,6 @@ export default async function TagPage({
           )}
         </div>
 
-        {/* Tag Content */}
         {tag.content && tag.content.length > 0 && (
           <div className="space-y-6">
             {tag.content.map((block, index) => {
@@ -159,22 +158,25 @@ export default async function TagPage({
 
         {tag.content && <hr className="my-3" />}
 
-        {/* Articles Section */}
         <div className="grid grid-cols-12 md:gap-4">
           <div className="col-span-12 lg:col-span-8">
             {articles && articles.length > 0 ? (
               <>
+                {/* Display the first/only article using ArticleItemMain */}
                 <ArticleItemMain article={articles[0]} withSubTitle />
 
-                <div className="space-y-4">
-                  {articles?.slice(1).map((article) => (
-                    <ArticleItemFullWidth
-                      key={article.id}
-                      article={article}
-                      withSubTitle
-                    />
-                  ))}
-                </div>
+                {/* Only render additional articles section if there are more than one article */}
+                {articles.length > 1 && (
+                  <div className="space-y-4 mt-8">
+                    {articles.slice(1).map((article) => (
+                      <ArticleItemFullWidth
+                        key={article.id}
+                        article={article}
+                        withSubTitle
+                      />
+                    ))}
+                  </div>
+                )}
 
                 {hasMore && (
                   <div className="mt-8">
@@ -197,7 +199,6 @@ export default async function TagPage({
             )}
           </div>
 
-          {/* Sidebar */}
           <aside className="hidden lg:block col-span-4">
             <div className="sticky top-20 space-y-8">
               <AsideSection articles={homeFrontal} title="Top Stories" />
