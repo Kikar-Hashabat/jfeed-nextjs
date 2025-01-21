@@ -64,7 +64,6 @@ export function generateSearchMetadata({
     alternates: {
       canonical: canonicalUrl,
     },
-    viewport: "width=device-width, initial-scale=1",
   };
 }
 

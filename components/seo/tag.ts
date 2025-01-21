@@ -87,7 +87,6 @@ export function generateTagMetadata(tag: Tag, currentPage: number): Metadata {
         prev: tagUrl + (currentPage > 2 ? `?page=${currentPage - 1}` : ""),
       }),
     },
-    viewport: "width=device-width, initial-scale=1",
   };
 }
 

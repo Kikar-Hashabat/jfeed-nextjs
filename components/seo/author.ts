@@ -87,7 +87,6 @@ export function generateAuthorMetadata(
         prev: authorUrl + (currentPage > 2 ? `?page=${currentPage - 1}` : ""),
       }),
     },
-    viewport: "width=device-width, initial-scale=1",
   };
 }
 
