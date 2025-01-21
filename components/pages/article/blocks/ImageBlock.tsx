@@ -4,7 +4,7 @@ import { ArticleImageContent } from "@/types/article";
 
 const ImageBlock: React.FC<ArticleImageContent> = ({ src, alt, credit }) => {
   return (
-    <figure className="relative mb-8">
+    <figure className="relative my-3">
       <div className="relative aspect-[16/9]">
         <OptimizedImage
           src={src}

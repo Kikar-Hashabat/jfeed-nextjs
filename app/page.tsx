@@ -90,9 +90,8 @@ export default async function Home() {
       <main>
         {/* Main Article */}
         <MainArticle article={homeFrontal[0]} />
-        <hr className="my-4" />
 
-        <div className="grid grid-cols-12 md:gap-4">
+        <div className="grid grid-cols-12 md:gap-4 mt-6">
           <div className="col-span-12 lg:col-span-8">
             {/* Featured Articles */}
             <div className="space-y-4">

@@ -101,7 +101,7 @@ const SocialEmbed: React.FC<SocialEmbedProps> = ({ type, url, oEmbedData }) => {
         return (
           <div
             ref={embedRef}
-            className="twitter-embed"
+            className="twitter-embed w-[90%]"
             aria-label="Twitter Post"
           >
             <blockquote
