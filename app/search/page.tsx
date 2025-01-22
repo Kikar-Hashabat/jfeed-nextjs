@@ -45,7 +45,7 @@ export default async function SearchPage({ searchParams }: any) {
           <hr className="my-3" />
           <Title
             title={query ? `Search Results for "${query}"` : "Search JFeed"}
-            className="text-2xl font-bold mb-6"
+            className="text-2xl font-bold"
             tag="h1"
           />
           <SearchBox initialQuery={query} className="mb-8" />

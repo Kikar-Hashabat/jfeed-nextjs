@@ -5,9 +5,14 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/sitemap",
+        destination: "/sitemap.xml",
+        permanent: true,
+      },
+      {
         source: "/weather",
         destination: "/weather/il/jerusalem",
-        permanent: true, // 301
+        permanent: true,
       },
       {
         source: "/shabbat-times",
@@ -35,7 +40,7 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "www.jfeed.com",
-        pathname: "/assets/images/**",
+        pathname: "/**",
       },
       {
         protocol: "https",
@@ -43,6 +48,20 @@ const nextConfig = {
         pathname: "/**",
       },
     ],
+  },
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: "/sitemap.xml",
+          destination: "/api/sitemap",
+        },
+        {
+          source: "/sitemap.xml/:path*",
+          destination: "/api/sitemap/:path*",
+        },
+      ],
+    };
   },
 };
 

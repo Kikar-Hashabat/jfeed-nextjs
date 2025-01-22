@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getAuthor, getCategoryBySlug, getTag, getArticle } from "./utils/api";
 
-// Cache implementation with type safety and automatic cleanup
+// Cache implementation
 interface CacheEntry {
   data: any;
   timestamp: number;
@@ -17,7 +17,6 @@ class APICache {
     this.cache = new Map();
     this.ttl = ttl;
     this.maxSize = maxSize;
-    // Clean up expired entries every minute
     setInterval(() => this.cleanup(), 60_000);
   }
 
@@ -37,7 +36,6 @@ class APICache {
     const now = Date.now();
     const cached = this.cache.get(key);
 
-    // Check cache size and remove oldest entries if necessary
     if (this.cache.size >= this.maxSize) {
       const oldest = [...this.cache.entries()]
         .sort(([, a], [, b]) => a.timestamp - b.timestamp)
@@ -62,10 +60,9 @@ class APICache {
   }
 }
 
-// Initialize cache with 5 minutes TTL
 const apiCache = new APICache(5 * 60 * 1000);
 
-// Static routes configuration
+// Static configurations
 const STATIC_ROUTES = new Set([
   "weather",
   "shabbat-times",
@@ -80,7 +77,6 @@ const STATIC_ROUTES = new Set([
   "manifest.json",
 ]);
 
-// Static file extensions to ignore
 const STATIC_EXTENSIONS = new Set([
   "jpg",
   "jpeg",
@@ -92,6 +88,7 @@ const STATIC_EXTENSIONS = new Set([
   "json",
   "js",
   "css",
+  "xml",
 ]);
 
 export async function middleware(request: NextRequest) {
@@ -99,11 +96,24 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl;
     const pathname = url.pathname;
 
+    // Handle sitemap routes first
+    if (pathname === '/sitemap.xml' || pathname.startsWith('/sitemap/')) {
+      if (pathname === '/sitemap.xml') {
+        return NextResponse.rewrite(new URL('/api/sitemap', request.url));
+      }
+      
+      // For sub-sitemaps (e.g., /sitemap/categories)
+      const pathSegments = pathname.split('/').slice(2); // Remove empty and 'sitemap'
+      const rewritePath = `/api/sitemap/${pathSegments.join('/')}`;
+      console.log('Rewriting to:', rewritePath); // Debug log
+      return NextResponse.rewrite(new URL(rewritePath, request.url));
+    }
+
     // Handle AMP redirects
     if (pathname.includes("/_amp/")) {
       const newPath = pathname.replace("/_amp/", "/");
       return NextResponse.redirect(new URL(newPath, request.url), {
-        status: 301, // Permanent redirect
+        status: 301,
       });
     }
 
@@ -130,7 +140,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/", request.url), { status: 308 });
     }
 
-    // Handle different path patterns
+    // Route handling
     switch (segments[0]) {
       case "authors": {
         const authorSlug = segments[1];
@@ -163,7 +173,6 @@ export async function middleware(request: NextRequest) {
       }
 
       default: {
-        // Handle category/article paths
         const categorySlug = segments[0];
         const articleSlug = segments[1];
 
@@ -190,11 +199,8 @@ export async function middleware(request: NextRequest) {
               );
             }
 
-            // Add proper null checks for article categories
             if (
-              article.categories &&
-              Array.isArray(article.categories) &&
-              article.categories.length > 0 &&
+              article.categories?.length > 0 &&
               article.categories[0].slug &&
               article.categories[0].slug !== categorySlug
             ) {
@@ -224,15 +230,13 @@ export async function middleware(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("Middleware error:", error);
-    // On error, just continue to the page instead of redirecting
     return NextResponse.next();
   }
 }
 
-// More specific matcher configuration
 export const config = {
   matcher: [
-    // Match all paths except static files and API routes
-    "/((?!_next/|api/|public/|favicon\\.ico|robots\\.txt|manifest\\.json|.*\\.(?:jpg|jpeg|gif|png|svg|ico|webp|js|css|json)$).*)",
+    // Match all paths except static files
+    "/((?!_next/static/|_next/image/|favicon\\.ico$|robots\\.txt$|manifest\\.json$).*)",
   ],
 };

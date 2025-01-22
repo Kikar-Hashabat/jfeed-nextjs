@@ -1,2 +1,17 @@
+
 User-agent: *
-Disallow: /
+Disallow: /v1/
+Disallow: /v2/
+Disallow: /nltx.jfeed.com
+Disallow: /a.jfeed.com
+Disallow: /test.jfeed.com
+
+# Block access to admin pages and internal scripts
+Disallow: /admin/
+Disallow: /scripts/
+
+# Allow access to all other content
+Allow: /
+
+# Specify the sitemap location
+Sitemap: https://www.jfeed.com/sitemap.xml
