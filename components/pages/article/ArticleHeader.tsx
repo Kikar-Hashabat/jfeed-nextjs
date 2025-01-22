@@ -26,9 +26,9 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({
   readTime,
 }) => {
   return (
-    <header className="mb-8">
+    <header className="mb-4">
       {roofTitle && (
-        <div className="text-sm font-medium text-primary bg-roofbg p-3 mb-2 inline-flex">
+        <div className="text-sm font-medium text-primary bg-roofbg p-3 mb-4 inline-flex">
           {roofTitle}
         </div>
       )}
@@ -37,7 +37,7 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({
         {title}
       </h1>
 
-      {subTitle && <p className="text-xl text-gray-700 mb-6">{subTitle}</p>}
+      {subTitle && <p className="text-xl text-gray-700 mb-4">{subTitle}</p>}
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 text-sm text-gray-600">
         <div className="flex items-center gap-4">
@@ -46,9 +46,9 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({
               src={author.image}
               alt={author.name}
               title={author.name}
-              width={40}
-              height={40}
-              className="rounded-full"
+              width={150}
+              height={150}
+              className="rounded-full border border-gray-500 object-cover h-12 w-12"
             />
           )}
           <div>
@@ -89,6 +89,7 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({
               className="flex items-center gap-1 text-primary hover:text-primary-dark transition-colors"
               aria-label={`Visit ${author.name}'s Twitter profile`}
             >
+              <Image src="/icons/x.svg" alt="Twitter" width={20} height={20} />
               <span className="sr-only">Twitter</span>
             </Link>
           )}

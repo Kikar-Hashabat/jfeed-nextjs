@@ -113,14 +113,14 @@ export default async function TagPage({
         <Breadcrumbs items={breadcrumbs} />
         <hr className="my-3" />
 
-        <div className="border-b border-gray-300 mb-3">
+        <div className="mb-3">
           <Title
             title={tag.title || tag.name}
             className="text-3xl font-bold capitalize"
             tag="h1"
           />
           {tag.subtitle && (
-            <p className="text-lg text-gray-700 mb-4 text-center font-semibold">
+            <p className="text-lg text-gray-700 my-4 text-center font-semibold">
               {tag.subtitle}
             </p>
           )}
@@ -134,7 +134,7 @@ export default async function TagPage({
               title={tag.name}
               width={120}
               height={120}
-              className="w-auto h-32 rounded-lg mb-4 object-contain border border-gray-200"
+              className="w-auto h-32 rounded-lg mb-4 object-contain border border-gray-200 p-3"
             />
           )}
         </div>

@@ -49,12 +49,13 @@ const CommentForm: React.FC<CommentFormProps> = ({
       await onSubmit(name, content);
       setName("");
       setContent("");
-      setMessage({
-        type: "success",
-        text: isReply
-          ? "Reply submitted successfully! It will be reviewed by our editors."
-          : "Comment submitted successfully! It will be reviewed by our editors.",
-      });
+      // Only show success message for main comments, not replies
+      if (!isReply) {
+        setMessage({
+          type: "success",
+          text: "Comment submitted successfully! It will be reviewed by our editors.",
+        });
+      }
     } catch (error) {
       console.error("Form submission error:", error);
       setMessage({
@@ -70,7 +71,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-8">
+    <form onSubmit={handleSubmit} className="mb-4">
       <input
         id="name"
         type="text"
@@ -91,7 +92,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
         className="w-full px-4 py-2 border border-gray-300 rounded my-3 font-inherit"
       />
 
-      <div className="flex items-start justify-between mt-4">
+      <div className="flex items-start justify-between">
         <span className="text-sm text-gray-600 flex-1 mr-4">
           Do not send comments that include inflammatory words, defamation, and
           content that exceeds the limit of good taste.
@@ -106,13 +107,16 @@ const CommentForm: React.FC<CommentFormProps> = ({
       </div>
 
       {message && (
-        <Alert variant={message.type === "error" ? "error" : "success"}>
-          <AlertDescription>{message.text}</AlertDescription>
-        </Alert>
+        <div className="mt-3">
+          <Alert variant={message.type === "error" ? "error" : "success"}>
+            <AlertDescription>{message.text}</AlertDescription>
+          </Alert>
+        </div>
       )}
     </form>
   );
 };
+
 interface CommentProps {
   comment: Comment;
   depth?: number;
@@ -136,6 +140,38 @@ const CommentItem: React.FC<CommentProps> = ({
   const [reportMessage, setReportMessage] = useState<FeedbackMessage | null>(
     null
   );
+  const [replyMessage, setReplyMessage] = useState<FeedbackMessage | null>(
+    null
+  );
+
+  const handleToggleReplyForm = () => {
+    setShowReplyForm(!showReplyForm);
+    if (showReportForm) setShowReportForm(false);
+  };
+
+  const handleToggleReportForm = () => {
+    setShowReportForm(!showReportForm);
+    if (showReplyForm) setShowReplyForm(false);
+  };
+
+  const handleReply = async (name: string, content: string) => {
+    try {
+      await onReply(comment.id, name, content);
+      setReplyMessage({
+        type: "success",
+        text: "Reply submitted successfully! It will be reviewed by our editors.",
+      });
+      setTimeout(() => {
+        setShowReplyForm(false);
+        setReplyMessage(null);
+      }, 2000);
+    } catch (error) {
+      setReplyMessage({
+        type: "error",
+        text: error instanceof Error ? error.message : "Failed to submit reply",
+      });
+    }
+  };
 
   const handleReport = async (reason: ReportPayload["reason"]) => {
     try {
@@ -170,14 +206,14 @@ const CommentItem: React.FC<CommentProps> = ({
           <div className="flex">
             {depth < 2 && (
               <button
-                onClick={() => setShowReplyForm(!showReplyForm)}
+                onClick={handleToggleReplyForm}
                 className="px-2 py-2 hover:bg-gray-100 text-sm"
               >
                 Reply
               </button>
             )}
             <button
-              onClick={() => setShowReportForm(!showReportForm)}
+              onClick={handleToggleReportForm}
               className="px-2 py-2 hover:bg-gray-100 text-sm"
             >
               Report
@@ -186,69 +222,72 @@ const CommentItem: React.FC<CommentProps> = ({
         </div>
 
         {showReportForm && (
-          <div className="mt-4 p-4 bg-white border border-gray-200 rounded">
-            <h4 className="font-medium mb-3">Report this comment</h4>
-            <div className="space-y-2">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name={`report-reason-${comment.id}`}
-                  value="problematic-content"
-                  onChange={(e) =>
-                    handleReport(e.target.value as ReportPayload["reason"])
-                  }
-                  className="text-blue-600"
-                />
-                <span className="text-sm">
-                  Comment with problematic content
-                </span>
-              </label>
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name={`report-reason-${comment.id}`}
-                  value="dirty-words"
-                  onChange={(e) =>
-                    handleReport(e.target.value as ReportPayload["reason"])
-                  }
-                  className="text-blue-600"
-                />
-                <span className="text-sm">
-                  Comment with inappropriate language
-                </span>
-              </label>
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name={`report-reason-${comment.id}`}
-                  value="disrespectful"
-                  onChange={(e) =>
-                    handleReport(e.target.value as ReportPayload["reason"])
-                  }
-                  className="text-blue-600"
-                />
-                <span className="text-sm">Disrespectful content</span>
-              </label>
+          <div className="relative pl-4 before:content-[''] before:absolute before:left-0 before:top-0 before:w-2.5 before:h-6 before:border-b-2 before:border-l-2 before:border-gray-200 before:rounded-bl-lg">
+            <div className="mt-4 p-4 bg-white border border-gray-200 rounded">
+              <h4 className="font-medium mb-3">Report this comment</h4>
+              <div className="space-y-2">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name={`report-reason-${comment.id}`}
+                    value="problematic-content"
+                    onChange={(e) =>
+                      handleReport(e.target.value as ReportPayload["reason"])
+                    }
+                    className="text-blue-600"
+                  />
+                  <span className="text-sm">
+                    Comment with problematic content
+                  </span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name={`report-reason-${comment.id}`}
+                    value="dirty-words"
+                    onChange={(e) =>
+                      handleReport(e.target.value as ReportPayload["reason"])
+                    }
+                    className="text-blue-600"
+                  />
+                  <span className="text-sm">
+                    Comment with inappropriate language
+                  </span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name={`report-reason-${comment.id}`}
+                    value="disrespectful"
+                    onChange={(e) =>
+                      handleReport(e.target.value as ReportPayload["reason"])
+                    }
+                    className="text-blue-600"
+                  />
+                  <span className="text-sm">Disrespectful content</span>
+                </label>
+              </div>
+              {reportMessage && (
+                <Alert
+                  variant={reportMessage.type === "error" ? "error" : "success"}
+                >
+                  <AlertDescription>{reportMessage.text}</AlertDescription>
+                </Alert>
+              )}
             </div>
-            {reportMessage && (
-              <Alert
-                variant={reportMessage.type === "error" ? "error" : "success"}
-              >
-                <AlertDescription>{reportMessage.text}</AlertDescription>
-              </Alert>
-            )}
           </div>
         )}
 
         {showReplyForm && (
           <div className="relative pl-4 mt-3 before:content-[''] before:absolute before:left-0 before:top-0 before:w-2.5 before:h-6 before:border-b-2 before:border-l-2 before:border-gray-200 before:rounded-bl-lg">
-            <CommentForm
-              onSubmit={async (name, content) => {
-                await onReply(comment.id, name, content);
-                setShowReplyForm(false);
-              }}
-              isReply
-            />
+            <CommentForm onSubmit={handleReply} isReply />
+            {replyMessage && (
+              <Alert
+                variant={replyMessage.type === "error" ? "error" : "success"}
+              >
+                <AlertDescription>{replyMessage.text}</AlertDescription>
+              </Alert>
+            )}
           </div>
         )}
 
