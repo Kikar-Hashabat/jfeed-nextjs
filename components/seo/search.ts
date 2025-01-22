@@ -36,7 +36,7 @@ export function generateSearchMetadata({
       siteName: "JFeed Israel News",
       images: [
         {
-          url: "/logo/jfeed-logo_512x512.png",
+          url: "https://www.jfeed.com/logo/jfeed-logo_512.png",
           width: 512,
           height: 512,
           alt: "JFeed Israel News Logo",
@@ -49,7 +49,7 @@ export function generateSearchMetadata({
       card: "summary",
       title,
       description,
-      images: ["/logo/jfeed-logo_512x512.png"],
+      images: ["https://www.jfeed.com/logo/jfeed-logo_512.png"],
       site: "@JFeedNews",
       creator: "@JFeedNews",
     },

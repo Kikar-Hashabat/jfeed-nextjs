@@ -29,7 +29,7 @@ export function generateWeatherMetadata(
       type: "website",
       images: [
         {
-          url: "/logo/jfeed-logo_512x512.png",
+          url: "https://www.jfeed.com/logo/jfeed-logo_512.png",
           width: 512,
           height: 512,
           alt: "JFeed Logo",
@@ -40,7 +40,7 @@ export function generateWeatherMetadata(
       card: "summary",
       title,
       description,
-      images: ["/logo/jfeed-logo_512x512.png"],
+      images: ["https://www.jfeed.com/logo/jfeed-logo_512.png"],
     },
     robots: {
       index: true,

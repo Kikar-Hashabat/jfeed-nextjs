@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     siteName: "JFeed",
     images: [
       {
-        url: "/logo/jfeed-logo_512x512.png",
+        url: "https://www.jfeed.com/logo/jfeed-logo_512.png",
         width: 512,
         height: 512,
         alt: "JFeed Logo",

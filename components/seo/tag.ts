@@ -57,7 +57,7 @@ export function generateTagMetadata(tag: Tag, currentPage: number): Metadata {
           ]
         : [
             {
-              url: "/logo/jfeed-logo_512x512.png",
+              url: "https://www.jfeed.com/logo/jfeed-logo_512.png",
               width: 512,
               height: 512,
               alt: "JFeed Israel News Logo",
@@ -70,7 +70,7 @@ export function generateTagMetadata(tag: Tag, currentPage: number): Metadata {
       card: "summary_large_image",
       title: `${metaTitle} - JFeed Israel News`,
       description: `${description} - JFeed Israel News`,
-      images: [tag.imageSrc || "/logo/jfeed-logo_512x512.png"],
+      images: [tag.imageSrc || "https://www.jfeed.com/logo/jfeed-logo_512.png"],
       site: "@JFeedNews",
       creator: "@JFeedNews",
     },

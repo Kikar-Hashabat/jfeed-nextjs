@@ -20,10 +20,9 @@ export function generateAuthorMetadata(
     : `${displayTitle} - Page ${currentPage} | JFeed Israel News`;
 
   // Enhanced description construction
-  const description = (
-    author.bio
-      ? `${author.bio.slice(0, 155)}${author.bio.length > 155 ? "..." : ""}`
-      : `Read the latest articles by ${author.name} on JFeed - Israel News. Stay updated with their insights and coverage on Israeli news, Jewish culture, and current events.`
+  const description = (author.bio
+    ? `${author.bio.slice(0, 155)}${author.bio.length > 155 ? "..." : ""}`
+    : `Read the latest articles by ${author.name} on JFeed - Israel News. Stay updated with their insights and coverage on Israeli news, Jewish culture, and current events.`
   ).trim();
 
   // Enhanced keywords handling
@@ -57,7 +56,7 @@ export function generateAuthorMetadata(
           ]
         : [
             {
-              url: "/logo/jfeed-logo_512x512.png",
+              url: "https://www.jfeed.com/logo/jfeed-logo_512.png",
               width: 512,
               height: 512,
               alt: "JFeed Israel News Logo",
@@ -70,7 +69,7 @@ export function generateAuthorMetadata(
       card: "summary_large_image",
       title: `${displayTitle} - JFeed Israel News`,
       description: `${description} - JFeed Israel News`,
-      images: [author.image || "/logo/jfeed-logo_512x512.png"],
+      images: [author.image || "https://www.jfeed.com/logo/jfeed-logo_512.png"],
       site: "@JFeedNews",
       creator: author.twitter ? author.twitter.split("/").pop() : "@JFeedNews",
     },
