@@ -68,7 +68,7 @@ export function ClientNav({ items }: ClientNavProps) {
       </div>
 
       {/* Desktop Navigation */}
-      <div className="hidden md:flex w-full items-center">
+      <div className="hidden md:flex w-full items-center font-newsreader">
         <Link href="/" aria-label="Home" className="mr-8">
           <div className="relative w-[140px] h-[50px]">
             <Image
@@ -88,7 +88,7 @@ export function ClientNav({ items }: ClientNavProps) {
             <Link
               key={item.category.slug}
               href={`/${item.category.slug}`}
-              className="px-4 py-2 text-sm font-medium uppercase hover:bg-red-700 rounded-md transition-colors"
+              className="px-6 py-2 font-medium uppercase hover:bg-red-700 rounded-md transition-colors"
               aria-label={`Navigate to ${item.category.title}`}
             >
               {item.category.title}
@@ -122,7 +122,7 @@ export function ClientNav({ items }: ClientNavProps) {
       {/* Mobile Menu */}
       {isOpen && (
         <div
-          className="absolute top-16 left-0 right-0 bg-red-600 p-4 shadow-lg md:hidden"
+          className="absolute top-16 left-0 right-0 bg-red-600 p-4 shadow-lg md:hidden font-newsreader"
           role="menu"
           aria-label="Mobile navigation menu"
         >
