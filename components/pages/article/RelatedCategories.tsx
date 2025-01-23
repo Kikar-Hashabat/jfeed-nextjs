@@ -17,6 +17,7 @@ export default function RelatedCategories({
     getArticlesV2({
       categorySlug: ArticleCategory.slug,
       limit: 12,
+      page: 2,
     }).then((articles) => {
       setArticles(articles);
     });
