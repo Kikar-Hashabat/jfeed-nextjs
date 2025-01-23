@@ -1,8 +1,8 @@
 import { Article } from "@/types";
 import { MessageSquareQuote } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import Title from "../Title";
+import { OptimizedImage } from "../OptimizedImage";
 
 interface AsideSectionProps {
   title: string;
@@ -34,14 +34,14 @@ export function AsideSection({ articles, title }: AsideSectionProps) {
               >
                 <article className="flex gap-4">
                   <div className="relative w-36 h-36 flex-shrink-0">
-                    <Image
-                      src={article.image?.src || "/placeholder.jpg"}
-                      alt={article.image?.alt || `Image for ${article.title}`}
-                      title={article.image?.alt || article.title}
+                    <OptimizedImage
+                      src={article.image?.src || ""}
+                      alt={article.image?.alt || article.title}
+                      width={600}
                       fill
                       className="object-cover"
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 120px"
-                      quality={90}
+                      sizes="(max-width: 768px) 50vw, 33vw"
+                      priority={false}
                     />
                   </div>
                   <div className="flex-grow">
