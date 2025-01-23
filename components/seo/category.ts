@@ -58,8 +58,10 @@ export function generateCategoryMetadata(
     : `${category.metaTitle || category.title} - Page ${currentPage}`;
 
   return {
-    title,
-    description: category.metaDescription,
+    title: {
+      absolute: `${title} - JFeed Israel News`,
+    },
+    description: category.metaDescription || `Latest news and articles from ${category.name}`,
     keywords: category.metaKeywords,
     openGraph: {
       title: category.title,

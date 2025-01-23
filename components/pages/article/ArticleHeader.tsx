@@ -89,7 +89,12 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({
               className="flex items-center gap-1 text-primary hover:text-primary-dark transition-colors"
               aria-label={`Visit ${author.name}'s Twitter profile`}
             >
-              <Image src="/icons/x.svg" alt="Twitter" width={20} height={20} />
+              <Image
+                src="/icons/x.svg"
+                alt="Twitter icon for author's Twitter profile"
+                width={20}
+                height={20}
+              />
               <span className="sr-only">Twitter</span>
             </Link>
           )}
