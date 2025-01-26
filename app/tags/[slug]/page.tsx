@@ -31,7 +31,7 @@ export async function generateMetadata({
 
   const currentPage = resolvedSearchParams.page
     ? parseInt(resolvedSearchParams.page)
-    : 1;
+    : 0;
 
   return generateTagMetadata(category, currentPage);
 }
@@ -84,7 +84,7 @@ export default async function TagPage({
   const slug = resolvedParams.slug;
   const currentPage = resolvedSearchParams.page
     ? parseInt(resolvedSearchParams.page)
-    : 1;
+    : 0;
 
   const tag = await getTag(slug);
   const { homeFrontal, mostRead, seenArticleIds } = await getHomeData();

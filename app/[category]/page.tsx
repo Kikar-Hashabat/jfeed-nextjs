@@ -27,7 +27,7 @@ export async function generateMetadata({
   const categorySlug = resolvedParams.category;
   const currentPage = resolvedSearchParams.page
     ? parseInt(resolvedSearchParams.page)
-    : 1;
+    : 0;
 
   try {
     const category = await getCategoryBySlug(categorySlug);
@@ -109,7 +109,7 @@ export default async function CategoryPage({
   const categorySlug = resolvedParams.category;
   const currentPage = resolvedSearchParams.page
     ? parseInt(resolvedSearchParams.page)
-    : 1;
+    : 0;
 
   const [
     category,

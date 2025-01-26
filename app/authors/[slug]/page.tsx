@@ -35,7 +35,7 @@ export async function generateMetadata({
 
   const currentPage = resolvedSearchParams.page
     ? parseInt(resolvedSearchParams.page)
-    : 1;
+    : 0;
 
   return generateAuthorMetadata(category, currentPage);
 }
@@ -81,7 +81,7 @@ export default async function AuthorPage({
   const slug = resolvedParams.slug;
   const currentPage = resolvedSearchParams.page
     ? parseInt(resolvedSearchParams.page)
-    : 1;
+    : 0;
 
   // Get home data for the sidebar and to track seen articles
   const { homeFrontal, mostRead, seenArticleIds } = await getHomeData();
