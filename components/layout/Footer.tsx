@@ -90,38 +90,40 @@ const Footer = memo(() => {
           <div className="flex items-center gap-4">
             <Link
               href="https://twitter.com/jfeednews"
-              className="text-white hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-white"
+              className="focus:outline-none focus:ring-2 focus:ring-white"
               aria-label="Twitter"
+              target="_blank"
             >
               <Image
                 src="/icons/x.svg"
                 alt="Twitter"
                 width={33}
                 height={33}
-                className="bg-white rounded-full p-1"
+                className="rounded-sm p-1"
               />
             </Link>
             <Link
               href="https://facebook.com/jfeednews"
-              className="text-white hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-white"
+              className="focus:outline-none focus:ring-2 focus:ring-white"
               aria-label="Facebook"
+              target="_blank"
             >
               <Image
                 src="/icons/facebook.svg"
                 alt="Twitter"
                 width={33}
                 height={33}
-                className="bg-white rounded-full p-1"
+                className="rounded-sm p-1"
               />
             </Link>
-          </div>
 
-          <Link
-            href="mailto:info@jfeed.com"
-            className="bg-red-700 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-white transition-colors"
-          >
-            Contact Us
-          </Link>
+            <Link
+              href="mailto:info@jfeed.com"
+              className="bg-red-700 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-white transition-colors"
+            >
+              Contact Us
+            </Link>
+          </div>
         </div>
 
         <nav
