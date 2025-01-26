@@ -1,184 +1,219 @@
 import Image from "next/image";
 import Link from "next/link";
+import * as React from "react";
+import { memo } from "react";
 
-const Footer = () => {
-  const currentYear = new Date().getFullYear();
+interface NavigationLink {
+  title: string;
+  url: string;
+  description?: string;
+}
+
+interface NavigationItemProps {
+  title: string;
+  links: NavigationLink[];
+}
+
+const NavigationColumn = memo(({ title, links }: NavigationItemProps) => {
+  const sectionId = `${title.toLowerCase().replace(/\s+/g, "-")}-nav`;
+
+  return (
+    <div>
+      <h2
+        id={sectionId}
+        className="text-lg font-bold text-white uppercase border-l-4 border-white pl-2"
+      >
+        <Link
+          href={`/${title.toLowerCase().replace(/\s+/g, "-")}`}
+          className="hover:underline focus:outline-none focus:ring-2 focus:ring-white"
+          aria-describedby={sectionId}
+        >
+          {title}
+        </Link>
+      </h2>
+      {links.length > 0 && (
+        <ul className="mt-3 space-y-2" aria-labelledby={sectionId}>
+          {links.map((link) => (
+            <li key={link.url}>
+              <Link
+                href={link.url}
+                className="text-sm text-gray-300 hover:text-gray-100 hover:underline focus:outline-none focus:ring-2 focus:ring-white transition-colors"
+                aria-label={link.description || link.title}
+              >
+                {link.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+});
+
+NavigationColumn.displayName = "NavigationColumn";
+
+const LEGAL_LINKS = [
+  { title: "Privacy Policy", url: "/general/privacy-policy" },
+  { title: "Terms of Service", url: "/general/terms-of-service" },
+  { title: "Halachic Times", url: "/halachic-times" },
+  { title: "Shabbat Times", url: "/shabbat-times" },
+  { title: "Weather", url: "/weather" },
+] as const;
+
+const Footer = memo(() => {
+  const currentYear = React.useMemo(() => new Date().getFullYear(), []);
 
   return (
     <footer
-      className="w-full bg-slate-900 text-gray-100 mt-8"
+      className="bg-black text-white px-6 md:px-12 py-8"
       role="contentinfo"
     >
-      <div className="bg-slate-800">
-        <div className="container mx-auto p-8">
-          {/* Footer Top Section */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-            {/* Brand and Description */}
-            <div>
-              <h2 className="mb-2 md:mb-0 text-xl">
-                <strong className="font-bold text-white">JFeed</strong>
-                <Link
-                  href="/"
-                  className="ml-2 hover:text-gray-300 transition-colors duration-200 text-gray-100"
-                  aria-label="JFeed News and Updates Portal - Home"
-                >
-                  News and updates portal
-                </Link>
-              </h2>
-            </div>
+      <div className="max-w-screen-xl mx-auto">
+        <div className="flex justify-between items-center border-b border-white/10 pb-4">
+          <Link
+            href="/"
+            className="focus:outline-none focus:ring-2 focus:ring-white"
+            aria-label="JFeed - Return to homepage"
+          >
+            <Image
+              src="/logo/logo-white.svg"
+              alt=""
+              width={120}
+              height={40}
+              className="w-auto h-12"
+              priority
+              loading="eager"
+            />
+          </Link>
 
-            {/* Social Links */}
-            <nav
-              aria-label="Social Media Links"
-              className="flex items-center space-x-4"
-            >
-              <a
-                href="https://twitter.com/JFeedEnglish"
-                title="Follow JFeed on Twitter"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-gray-300 transition-colors duration-200 text-white"
-                aria-label="Follow JFeed on Twitter (opens in new tab)"
-              >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
-                  className="w-6 h-6"
-                >
-                  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 3s-4 10 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z" />
-                </svg>
-              </a>
-              <a
-                href="https://www.facebook.com/JFeedJewishNews"
-                title="Follow JFeed on Facebook"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-gray-300 transition-colors duration-200 text-white"
-                aria-label="Follow JFeed on Facebook (opens in new tab)"
-              >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
-                  className="w-6 h-6"
-                >
-                  <path d="M22.675 0H1.325C.594 0 0 .594 0 1.325v21.35C0 23.406.594 24 1.325 24h11.49V14.7h-3.2V11h3.2V8.4c0-3.167 1.933-4.9 4.756-4.9 1.35 0 2.51.1 2.85.144V6.7h-1.95c-1.53 0-1.825.73-1.825 1.8V11h3.65l-.475 3.7h-3.175V24h6.225c.73 0 1.325-.594 1.325-1.325V1.325C24 .594 23.406 0 22.675 0z" />
-                </svg>
-              </a>
-            </nav>
-          </div>
+          <Link
+            href="/contact"
+            className="bg-red-700 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-white transition-colors"
+          >
+            Contact Us
+          </Link>
+        </div>
 
-          <hr className="border-gray-600 my-6" aria-hidden="true" />
+        <nav
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-8"
+          aria-label="Site sections"
+        >
+          {navigationData.map((item) => (
+            <NavigationColumn key={item.title} {...item} />
+          ))}
+        </nav>
 
-          {/* Footer Bottom Section */}
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            {/* Logo */}
-            <Link
-              href="/"
-              className="focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
-              aria-label="JFeed Home"
-            >
-              <Image
-                src={`https://www.jfeed.com/assets/images/logo/jfeed.png`}
-                alt="JFeed Israel News"
-                title={"JFeed logo"}
-                width={150}
-                height={50}
-                className="h-12 w-auto"
-                priority
-              />
-            </Link>
+        <div className="flex flex-col md:flex-row justify-between items-center mt-8 border-t border-white/10 pt-4 gap-4 md:gap-0">
+          <p className="text-sm text-gray-400 text-center md:text-left">
+            <span>© {currentYear} JFeed. All rights reserved.</span>
+          </p>
 
-            {/* Footer Links */}
-            <nav
-              aria-label="Footer Navigation"
-              className="flex flex-wrap justify-center gap-4 text-sm mt-4 md:mt-0"
-            >
-              <ul className="flex flex-wrap gap-2 items-center">
-                <li>
+          <nav aria-label="Legal">
+            <ul className="flex flex-wrap gap-4 justify-center md:justify-start">
+              {LEGAL_LINKS.map((link) => (
+                <li key={link.url}>
                   <Link
-                    href="/news"
-                    className="hover:text-gray-300 transition-colors duration-200 text-gray-100 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
+                    href={link.url}
+                    className="text-sm text-gray-300 hover:text-gray-100 hover:underline focus:outline-none focus:ring-2 focus:ring-white transition-colors"
                   >
-                    JFeed News
+                    {link.title}
                   </Link>
                 </li>
-                <li aria-hidden="true" className="text-gray-500">
-                  |
-                </li>
-                <li>
-                  <a
-                    href="mailto:desk@jfeed.com"
-                    className="hover:text-gray-300 transition-colors duration-200 text-gray-100 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
-                  >
-                    Contact Us
-                  </a>
-                </li>
-                <li aria-hidden="true" className="text-gray-500">
-                  |
-                </li>
-                <li>
-                  <Link
-                    href="/general/privacy-policy"
-                    className="hover:text-gray-300 transition-colors duration-200 text-gray-100 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
-                  >
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li aria-hidden="true" className="text-gray-500">
-                  |
-                </li>
-                <li>
-                  <Link
-                    href="/general/terms-of-use"
-                    className="hover:text-gray-300 transition-colors duration-200 text-gray-100 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
-                  >
-                    Terms of Service
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/weather"
-                    className="hover:text-gray-300 transition-colors duration-200 text-gray-100 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
-                  >
-                    Weather
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/halachic-times"
-                    className="hover:text-gray-300 transition-colors duration-200 text-gray-100 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
-                  >
-                    Halachic Times
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/shabbat-times"
-                    className="hover:text-gray-300 transition-colors duration-200 text-gray-100 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-100"
-                  >
-                    Shabbat Times
-                  </Link>
-                </li>
-                <li>
-                  <p className="text-gray-300">
-                    © {currentYear} JFeed. All rights reserved.
-                  </p>
-                </li>
-              </ul>
-            </nav>
-          </div>
+              ))}
+            </ul>
+          </nav>
         </div>
       </div>
     </footer>
   );
-};
+});
+
+Footer.displayName = "Footer";
 
 export default Footer;
+
+export const navigationData = [
+  {
+    title: "News",
+    links: [
+      {
+        title: "Israel News",
+        url: "/israel",
+        description: "Latest news and updates from Israel",
+      },
+      {
+        title: "World News",
+        url: "/world",
+        description: "Global news coverage and international updates",
+      },
+    ],
+  },
+  {
+    title: "Jewish World",
+    links: [],
+  },
+  {
+    title: "Crime and Justice",
+    links: [],
+  },
+  {
+    title: "Culture",
+    links: [
+      {
+        title: "Jewish Lifestyle",
+        url: "/lifestyle",
+        description: "Modern Jewish lifestyle, traditions and customs",
+      },
+      {
+        title: "Movies and TV Shows",
+        url: "/movies-tv",
+        description: "Reviews and news about Jewish-themed entertainment",
+      },
+      {
+        title: "Jewish Music",
+        url: "/music",
+        description: "Contemporary and traditional Jewish music",
+      },
+      {
+        title: "Jewish Literature",
+        url: "/books",
+        description: "Book reviews and literary discussions",
+      },
+      {
+        title: "TV and Radio Programs",
+        url: "/tv-radio",
+        description: "Jewish-themed broadcasting and media",
+      },
+    ],
+  },
+  {
+    title: "Opinion",
+    links: [
+      {
+        title: "Editorials",
+        url: "/editorials",
+        description: "Opinion pieces and editorials",
+      },
+      {
+        title: "Letters to the Editor",
+        url: "/letters",
+        description: "Reader-submitted letters and opinions",
+      },
+    ],
+  },
+  {
+    title: "Community",
+    links: [
+      {
+        title: "Community News",
+        url: "/community",
+        description: "Local news and events from Jewish communities",
+      },
+      {
+        title: "Obituaries",
+        url: "/obituaries",
+        description: "Obituaries and memorials",
+      },
+    ],
+  },
+];
