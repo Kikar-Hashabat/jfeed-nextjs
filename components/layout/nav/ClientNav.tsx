@@ -1,9 +1,9 @@
 "use client";
 
-import { Menu, X, Search, Sun } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { Menu, Search, X } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface NavItem {
   category: {
@@ -18,129 +18,128 @@ interface ClientNavProps {
 
 export function ClientNav({ items }: ClientNavProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <>
-      {/* Mobile Navigation */}
-      <div className="flex w-full items-center justify-between md:hidden">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="p-2 hover:bg-red-700 rounded-md"
-          aria-label={isOpen ? "Close menu" : "Open menu"}
-        >
-          {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+    <div className="w-full">
+      {/* Top Bar */}
+      <div
+        className={`bg-red-600 ${isScrolled ? "fixed top-0 w-full z-50" : ""}`}
+      >
+        <div className="max-w-full mx-4 px-4">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-4">
+              <button onClick={() => setIsOpen(!isOpen)} aria-label="Menu">
+                <Menu className="text-white h-6 w-6" />
+              </button>
+              <Link href="/search" aria-label="Search">
+                <Search className="text-white h-6 w-6" />
+              </Link>
+            </div>
 
-        <Link
-          href="/"
-          aria-label="Home"
-          className="absolute left-1/2 -translate-x-1/2"
-        >
-          <div className="relative w-[120px] h-[40px]">
-            <Image
-              src="/logo/jfeed-new.png"
-              alt="JFeed News Logo"
-              title={"JFeed logo"}
-              fill
-              sizes="120px"
-              className="object-contain"
-              priority
-            />
+            <div className="flex-1 flex justify-center">
+              <Image
+                src="/logo/logo-white.svg"
+                alt="JFeed"
+                width={120}
+                height={48}
+                priority
+                className="mx-auto"
+              />
+            </div>
+
+            <div className="flex items-center space-x-6 text-white text-sm">
+              <Link href="/contact">Contact us</Link>
+              <div>Washington | 21°</div>
+            </div>
           </div>
-        </Link>
-
-        <div className="flex items-center gap-2">
-          <Link
-            href="/search"
-            className="p-2 hover:bg-red-700 rounded-md"
-            aria-label="Search"
-          >
-            <Search className="h-5 w-5" />
-          </Link>
-          <Link
-            href="/weather"
-            className="p-2 hover:bg-red-700 rounded-md"
-            aria-label="Weather forecast"
-          >
-            <Sun className="h-5 w-5" />
-          </Link>
         </div>
       </div>
 
       {/* Desktop Navigation */}
-      <div className="hidden md:flex w-full items-center font-newsreader">
-        <Link href="/" aria-label="Home" className="mr-8">
-          <div className="relative w-[140px] h-[50px]">
-            <Image
-              src="/logo/jfeed-new.png"
-              alt="JFeed News Logo"
-              title={"JFeed logo"}
-              fill
-              sizes="140px"
-              className="object-contain"
-              priority
-            />
-          </div>
-        </Link>
-
-        <nav className="flex items-center space-x-1 flex-1">
-          {items.map((item) => (
-            <Link
-              key={item.category.slug}
-              href={`/${item.category.slug}`}
-              className="px-6 py-2 font-medium uppercase hover:bg-red-700 rounded-md transition-colors"
-              aria-label={`Navigate to ${item.category.title}`}
-            >
-              {item.category.title}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-4">
-          <Link
-            href="/search"
-            className="p-2 hover:bg-red-700 rounded-md flex items-center gap-1"
-            aria-label="Search"
-          >
-            <Search className="h-5 w-5" />
-          </Link>
-          <Link
-            href="/weather"
-            className="p-2 hover:bg-red-700 rounded-md flex items-center gap-1"
-            aria-label="Weather forecast"
-          >
-            <Sun className="h-5 w-5" />
-            <span
-              id="weather-temp"
-              className="text-sm"
-              aria-label="Weather temperature"
-            ></span>
-          </Link>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div
-          className="absolute top-16 left-0 right-0 bg-red-600 p-4 shadow-lg md:hidden font-newsreader"
-          role="menu"
-          aria-label="Mobile navigation menu"
-        >
-          <nav className="flex flex-col space-y-2">
+      <nav
+        className={`bg-white shadow-md hidden md:block ${
+          isScrolled ? "fixed top-16 w-full z-40" : ""
+        }`}
+      >
+        <div className="max-w-full mx-4 px-4">
+          <div className="flex justify-center space-x-8 py-4">
             {items.map((item) => (
               <Link
                 key={item.category.slug}
                 href={`/${item.category.slug}`}
-                className="px-4 py-2 text-sm font-medium uppercase hover:bg-red-700 rounded-md transition-colors"
-                onClick={() => setIsOpen(false)}
-                aria-label={`Navigate to ${item.category.title}`}
+                className="text-gray-800 hover:text-red-600 transition-colors"
               >
                 {item.category.title}
               </Link>
             ))}
-          </nav>
+          </div>
+        </div>
+      </nav>
+
+      {/* Mobile Menu */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 bg-white md:hidden">
+          <div className="p-4">
+            <button
+              onClick={() => setIsOpen(false)}
+              className="mb-4"
+              aria-label="Close menu"
+            >
+              <X className="h-6 w-6" />
+            </button>
+            <nav className="space-y-4">
+              {items.map((item) => (
+                <Link
+                  key={item.category.slug}
+                  href={`/${item.category.slug}`}
+                  className="block text-gray-800 hover:text-red-600"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {item.category.title}
+                </Link>
+              ))}
+            </nav>
+          </div>
         </div>
       )}
-    </>
+
+      {/* Desktop Menu */}
+      <>
+        {isOpen && (
+          <div className="fixed inset-0 z-50 bg-white hidden md:block">
+            <div className="p-8">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="mb-4"
+                aria-label="Close menu"
+              >
+                <X className="h-6 w-6" />
+              </button>
+              <nav className="grid grid-cols-3 gap-8 mt-8">
+                {items.map((item) => (
+                  <Link
+                    key={item.category.slug}
+                    href={`/${item.category.slug}`}
+                    className="text-xl text-gray-800 hover:text-red-600"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.category.title}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          </div>
+        )}
+      </>
+    </div>
   );
 }
