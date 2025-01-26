@@ -40,8 +40,8 @@ const AboutUsHome = memo(() => {
             Available Everywhere
           </h3>
           <p>
-            Access JFEED's mobile-optimized platform across all devices, staying
-            connected to essential news wherever you are.
+            Access JFEED&#39;s mobile-optimized platform across all devices,
+            staying connected to essential news wherever you are.
           </p>
         </section>
       </div>
