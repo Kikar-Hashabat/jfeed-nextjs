@@ -200,11 +200,7 @@ export default async function CategoryPage({
               <ArticleItemMain article={mainArticles[0]} withSubTitle />
               <div className="space-y-4">
                 {mainArticles.slice(1).map((article) => (
-                  <ArticleItemFullWidth
-                    key={article.id}
-                    article={article}
-                    withSubTitle
-                  />
+                  <ArticleItemFullWidth key={article.id} article={article} />
                 ))}
               </div>
 

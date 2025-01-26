@@ -195,11 +195,7 @@ export default async function AuthorPage({
                 {/* Remaining articles */}
                 <div className="space-y-4">
                   {articles?.slice(1).map((article) => (
-                    <ArticleItemFullWidth
-                      key={article.id}
-                      article={article}
-                      withSubTitle
-                    />
+                    <ArticleItemFullWidth key={article.id} article={article} />
                   ))}
                 </div>
 

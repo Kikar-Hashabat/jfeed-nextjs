@@ -172,7 +172,6 @@ export default async function TagPage({
                       <ArticleItemFullWidth
                         key={article.id}
                         article={article}
-                        withSubTitle
                       />
                     ))}
                   </div>
