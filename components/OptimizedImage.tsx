@@ -112,7 +112,10 @@ function getCloudflareFormatImageUrl(
   const forceNewImage =
     typeof process !== "undefined" &&
     process?.env?.NEXT_PUBLIC_APP_TYPE === "admin" &&
-    originalPath.split("/").slice(1, 4).join("/") ===
+    originalPath
+      .split("/")
+      .slice(1, 4)
+      .join("/") ===
       `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
 
   const transformString = Object.entries({

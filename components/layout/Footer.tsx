@@ -65,7 +65,7 @@ const Footer = memo(() => {
 
   return (
     <footer
-      className="bg-black text-white px-6 md:px-12 py-8"
+      className="bg-black text-white px-6 md:px-12 py-8 mt-8"
       role="contentinfo"
     >
       <div className="max-w-screen-xl mx-auto">

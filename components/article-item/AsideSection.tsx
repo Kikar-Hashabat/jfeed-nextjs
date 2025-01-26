@@ -3,6 +3,7 @@ import { Article } from "@/types";
 import Link from "next/link";
 import { OptimizedImage } from "../OptimizedImage";
 import { MessageSquare } from "lucide-react";
+import Title from "../Title";
 
 interface AsideSectionProps {
   title: string;
@@ -12,12 +13,12 @@ interface AsideSectionProps {
 export const AsideSection = memo(({ articles, title }: AsideSectionProps) => {
   return (
     <section aria-labelledby={`aside-${title.toLowerCase()}-title`}>
-      <h2
+      <Title
+        tag="h3"
         id={`aside-${title.toLowerCase()}-title`}
-        className="text-2xl font-medium mb-4"
-      >
-        {title}
-      </h2>
+        className="text-2xl font-medium"
+        title={title}
+      />
 
       <ul className="space-y-6">
         {articles.map((article) => (
@@ -28,14 +29,13 @@ export const AsideSection = memo(({ articles, title }: AsideSectionProps) => {
               aria-labelledby={`aside-article-${article.id}-title`}
             >
               <article className="flex gap-4">
-                <div className="relative w-36 h-36 flex-shrink-0">
+                <div className="relative w-36 h-36 flex-shrink-0 bg-black">
                   <OptimizedImage
                     src={article.image?.src || ""}
-                    alt=""
-                    width={144}
-                    height={144}
+                    alt={article.image?.alt || ""}
+                    fill
+                    sizes="(max-width: 768px) 160px, 260px"
                     className="object-cover"
-                    sizes="144px"
                   />
                 </div>
                 <div>

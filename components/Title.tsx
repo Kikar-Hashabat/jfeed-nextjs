@@ -16,7 +16,7 @@ export default function Title({
   id = "title",
 }: TitleProps) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 mb-3">
       <div className="w-7 h-7 bg-primary rounded" aria-hidden="true"></div>
       <Tag id={id} className={className}>
         {link ? <Link href={`/${link}`}>{title}</Link> : title}
