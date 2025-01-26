@@ -144,13 +144,13 @@ export default async function CategoryPage({
     <main className="container mx-auto">
       <Breadcrumbs items={breadcrumbs} />
 
+      <hr className="my-3" />
+
       <Title
         title={category.name}
         className="text-3xl font-bold capitalize"
         tag="h1"
       />
-
-      <hr className="my-3" />
 
       {category.subTitle && (
         <p className="text-gray-600 mb-8">{category.subTitle}</p>

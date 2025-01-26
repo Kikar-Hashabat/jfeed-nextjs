@@ -47,7 +47,7 @@ export function ClientNav({ items }: ClientNavProps) {
   };
 
   return (
-    <header className="w-full font-newsreader" role="banner">
+    <header className="w-full" role="banner">
       <div
         className={`bg-red-600 ${
           isScrolled ? "md:hidden" : ""
@@ -105,9 +105,35 @@ export function ClientNav({ items }: ClientNavProps) {
 
             <div className="hidden md:flex items-center space-x-6 text-white text-sm">
               <Link href="/contact">Contact us</Link>
-              <div role="complementary" aria-label="Weather">
-                Washington | 21°
-              </div>
+              <Link
+                href="/weather"
+                className="flex items-center space-x-2 hover:text-red-100 transition-colors"
+                role="complementary"
+                aria-label="Weather"
+              >
+                <div className="flex items-center">
+                  <svg
+                    className="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 3V5M5.31412 5.31412L6.728 6.728M3 12H5M5.31412 18.6859L6.728 17.272M12 19V21M18.6859 18.6859L17.272 17.272M21 12H19M18.6859 5.31412L17.272 6.728"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="4"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                </div>
+              </Link>
             </div>
 
             <div className="w-6 md:hidden"></div>
