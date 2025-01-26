@@ -1,3 +1,4 @@
+import { Facebook } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
@@ -78,13 +79,42 @@ const Footer = memo(() => {
             <Image
               src="/logo/logo-white.svg"
               alt=""
-              width={120}
+              width={40}
               height={40}
-              className="w-auto h-12"
+              className="w-auto"
               priority
               loading="eager"
             />
           </Link>
+
+          <div className="flex items-center gap-4">
+            <Link
+              href="https://twitter.com/jfeednews"
+              className="text-white hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-white"
+              aria-label="Twitter"
+            >
+              <Image
+                src="/icons/x.svg"
+                alt="Twitter"
+                width={33}
+                height={33}
+                className="bg-white rounded-full p-1"
+              />
+            </Link>
+            <Link
+              href="https://facebook.com/jfeednews"
+              className="text-white hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-white"
+              aria-label="Facebook"
+            >
+              <Image
+                src="/icons/facebook.svg"
+                alt="Twitter"
+                width={33}
+                height={33}
+                className="bg-white rounded-full p-1"
+              />
+            </Link>
+          </div>
 
           <Link
             href="mailto:info@jfeed.com"
