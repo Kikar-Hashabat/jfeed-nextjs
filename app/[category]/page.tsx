@@ -10,7 +10,7 @@ import Pagination from "@/components/Pagination";
 import Title from "@/components/Title";
 import { generateCategoryMetadata } from "@/components/seo/category";
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 30;
 const SUBCATEGORY_ARTICLES_COUNT = 6;
 const MAIN_ARTICLES_COUNT = 5;
 
@@ -58,6 +58,8 @@ async function getCategoryWithSubArticles(
   const filteredMainArticles = mainArticles.filter(
     (article) => !existingIds.has(article.id)
   );
+
+  console.log("filteredMainArticles", filteredMainArticles);
 
   // Add main articles to seen IDs
   filteredMainArticles.forEach((article) => existingIds.add(article.id));
@@ -141,12 +143,19 @@ export default async function CategoryPage({
     : 1;
 
   // Get category data and home data in parallel
-  const [category, { homeFrontal, mostRead, seenArticleIds }] =
-    await Promise.all([getCategoryBySlug(categorySlug), getHomeData()]);
+  const [
+    category,
+    { homeFrontal, mostRead, seenArticleIds },
+  ] = await Promise.all([getCategoryBySlug(categorySlug), getHomeData()]);
 
   // Get main category articles and subcategory articles
-  const { mainArticles, subCategoriesWithArticles, hasMore } =
-    await getCategoryWithSubArticles(category, seenArticleIds, currentPage);
+  const {
+    mainArticles,
+    subCategoriesWithArticles,
+    hasMore,
+  } = await getCategoryWithSubArticles(category, seenArticleIds, currentPage);
+
+  console.log("mainArticles", mainArticles);
 
   const breadcrumbs = [];
 
