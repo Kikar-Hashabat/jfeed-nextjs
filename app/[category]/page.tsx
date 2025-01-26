@@ -10,9 +10,7 @@ import Pagination from "@/components/Pagination";
 import Title from "@/components/Title";
 import { generateCategoryMetadata } from "@/components/seo/category";
 
-const ITEMS_PER_PAGE = 30;
-const SUBCATEGORY_ARTICLES_COUNT = 6;
-const MAIN_ARTICLES_COUNT = 5;
+const ITEMS_PER_PAGE = 20;
 
 export async function generateMetadata({
   params,
@@ -43,86 +41,57 @@ export async function generateMetadata({
   }
 }
 
-async function getCategoryWithSubArticles(
+async function getCategoryArticles(
   category: Category,
   existingIds: Set<number>,
   currentPage: number
 ) {
-  // Fetch main category articles with a higher limit to ensure we get enough unique ones
-  const mainArticles = await getArticlesV2({
-    categorySlug: category.slug,
-    limit: Math.max(MAIN_ARTICLES_COUNT * 2, 4), // Ensure at least 4 articles are fetched
-  });
-
-  // Filter and take only the unique articles
-  const filteredMainArticles = mainArticles.filter(
-    (article) => !existingIds.has(article.id)
-  );
-
-  console.log("filteredMainArticles", filteredMainArticles);
-
-  // Add main articles to seen IDs
-  filteredMainArticles.forEach((article) => existingIds.add(article.id));
-
-  // If less than 4 articles, fetch more until we meet the minimum
-  while (filteredMainArticles.length < 4) {
-    const additionalArticles = await getArticlesV2({
+  if (category.subCategories && category.subCategories.length > 0) {
+    // Handle subcategories case
+    const mainArticles = await getArticlesV2({
       categorySlug: category.slug,
-      limit: 4 - filteredMainArticles.length,
+      limit: 4,
+    });
+
+    const subCategoriesWithArticles = await Promise.all(
+      category.subCategories.map(async (subCategory) => {
+        const articles = await getArticlesV2({
+          categorySlug: subCategory.slug,
+          limit: 6,
+        });
+
+        return {
+          ...subCategory,
+          articles,
+        };
+      })
+    );
+
+    return {
+      mainArticles,
+      subCategoriesWithArticles,
+      hasMore: false,
+    };
+  } else {
+    // Handle pagination for categories without subcategories
+    const articles = await getArticlesV2({
+      categorySlug: category.slug,
+      limit: ITEMS_PER_PAGE,
       page: currentPage,
     });
 
-    const uniqueAdditionalArticles = additionalArticles.filter(
-      (article) => !existingIds.has(article.id)
-    );
+    const nextPageArticles = await getArticlesV2({
+      categorySlug: category.slug,
+      limit: 1,
+      page: currentPage + 1,
+    });
 
-    filteredMainArticles.push(...uniqueAdditionalArticles);
-    uniqueAdditionalArticles.forEach((article) => existingIds.add(article.id));
-
-    if (uniqueAdditionalArticles.length === 0) break; // No more articles available
+    return {
+      mainArticles: articles,
+      subCategoriesWithArticles: [],
+      hasMore: nextPageArticles.length > 0,
+    };
   }
-
-  const subCategoriesWithArticles = await Promise.all(
-    category.subCategories.map(async (subCategory) => {
-      const allArticles = [];
-      let page = 0;
-      let hasMore = true;
-
-      while (allArticles.length < SUBCATEGORY_ARTICLES_COUNT && hasMore) {
-        const fetchedArticles = await getArticlesV2({
-          categorySlug: subCategory.slug,
-          limit: SUBCATEGORY_ARTICLES_COUNT * 2,
-          page: page,
-        });
-
-        hasMore = fetchedArticles.length === SUBCATEGORY_ARTICLES_COUNT * 2;
-
-        const newUniqueArticles = fetchedArticles.filter(
-          (article) => !existingIds.has(article.id)
-        );
-
-        allArticles.push(...newUniqueArticles);
-        page++;
-
-        if (page > 5) break;
-      }
-
-      const finalArticles = allArticles.slice(0, SUBCATEGORY_ARTICLES_COUNT);
-
-      finalArticles.forEach((article) => existingIds.add(article.id));
-
-      return {
-        ...subCategory,
-        articles: finalArticles,
-      };
-    })
-  );
-
-  return {
-    mainArticles: filteredMainArticles.slice(0, 4), // Ensure we return at least 4 articles
-    subCategoriesWithArticles,
-    hasMore: false,
-  };
 }
 
 export default async function CategoryPage({
@@ -142,24 +111,19 @@ export default async function CategoryPage({
     ? parseInt(resolvedSearchParams.page)
     : 1;
 
-  // Get category data and home data in parallel
   const [
     category,
     { homeFrontal, mostRead, seenArticleIds },
   ] = await Promise.all([getCategoryBySlug(categorySlug), getHomeData()]);
 
-  // Get main category articles and subcategory articles
   const {
     mainArticles,
     subCategoriesWithArticles,
     hasMore,
-  } = await getCategoryWithSubArticles(category, seenArticleIds, currentPage);
-
-  console.log("mainArticles", mainArticles);
+  } = await getCategoryArticles(category, seenArticleIds, currentPage);
 
   const breadcrumbs = [];
 
-  // Handle parent categories
   if (category.parents && category.parents.length > 0) {
     category.parents.forEach((parent) => {
       breadcrumbs.push({
@@ -170,7 +134,6 @@ export default async function CategoryPage({
     });
   }
 
-  // Add current category
   breadcrumbs.push({
     name: category.name,
     url: `/${category.slug}`,
@@ -204,22 +167,20 @@ export default async function CategoryPage({
                 ))}
               </div>
 
-              {/* Show pagination only when there are no subcategories */}
               {(!category.subCategories ||
-                category.subCategories.length === 0) &&
-                hasMore && (
-                  <div className="mt-8">
-                    <Pagination
-                      currentPage={currentPage}
-                      totalItems={
-                        currentPage * ITEMS_PER_PAGE +
-                        (hasMore ? ITEMS_PER_PAGE : 0)
-                      }
-                      itemsPerPage={ITEMS_PER_PAGE}
-                      baseUrl={`/${categorySlug}`}
-                    />
-                  </div>
-                )}
+                category.subCategories.length === 0) && (
+                <div className="mt-8">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalItems={
+                      currentPage * ITEMS_PER_PAGE +
+                      (hasMore ? ITEMS_PER_PAGE : 0)
+                    }
+                    itemsPerPage={ITEMS_PER_PAGE}
+                    baseUrl={`/${categorySlug}`}
+                  />
+                </div>
+              )}
             </>
           ) : (
             <div className="bg-gray-50 rounded-lg p-8 text-center">
@@ -229,7 +190,6 @@ export default async function CategoryPage({
             </div>
           )}
 
-          {/* Show subcategory articles if they exist */}
           <div className="space-y-8 mt-8">
             {subCategoriesWithArticles.map((subCategory) => (
               <CategorySection
@@ -242,7 +202,6 @@ export default async function CategoryPage({
           </div>
         </div>
 
-        {/* Sidebar */}
         <aside className="hidden lg:block col-span-4">
           <div className="sticky top-20 space-y-8">
             <AsideSection articles={homeFrontal} title="Top Stories" />

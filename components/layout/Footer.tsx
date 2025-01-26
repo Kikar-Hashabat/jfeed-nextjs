@@ -54,7 +54,7 @@ NavigationColumn.displayName = "NavigationColumn";
 
 const LEGAL_LINKS = [
   { title: "Privacy Policy", url: "/general/privacy-policy" },
-  { title: "Terms of Service", url: "/general/terms-of-service" },
+  { title: "Terms of Service", url: "/general/terms-of-use" },
   { title: "Halachic Times", url: "/halachic-times" },
   { title: "Shabbat Times", url: "/shabbat-times" },
   { title: "Weather", url: "/weather" },
