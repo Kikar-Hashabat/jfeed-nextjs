@@ -1,88 +1,86 @@
+import { memo } from "react";
 import { Article } from "@/types";
-import { MessageSquareQuote } from "lucide-react";
 import Link from "next/link";
-import Title from "../Title";
 import { OptimizedImage } from "../OptimizedImage";
+import { MessageSquare } from "lucide-react";
 
 interface AsideSectionProps {
   title: string;
   articles: Article[];
 }
 
-export function AsideSection({ articles, title }: AsideSectionProps) {
+export const AsideSection = memo(({ articles, title }: AsideSectionProps) => {
   return (
-    <aside aria-labelledby="aside-section-title">
-      {/* Title */}
-      <header className="mb-4">
-        <Title
-          title={title}
-          id="aside-section-title"
-          className="text-2xl font-medium flex-grow"
-          tag="h2"
-        />
-      </header>
+    <section aria-labelledby={`aside-${title.toLowerCase()}-title`}>
+      <h2
+        id={`aside-${title.toLowerCase()}-title`}
+        className="text-2xl font-medium mb-4"
+      >
+        {title}
+      </h2>
 
-      {/* Articles List */}
-      <section className="space-y-6" aria-label={`${title} articles`}>
-        <ul className="space-y-6" role="list">
-          {articles.map((article) => (
-            <li key={article.id} className="block">
-              <Link
-                href={`/${article.categorySlug}/${article.slug}`}
-                className="group"
-                aria-label={`Read article: ${article.title}`}
-              >
-                <article className="flex gap-4">
-                  <div className="relative w-36 h-36 flex-shrink-0">
-                    <OptimizedImage
-                      src={article.image?.src || ""}
-                      alt={article.image?.alt || article.title}
-                      width={600}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 50vw, 33vw"
-                      priority={false}
-                    />
-                  </div>
-                  <div className="flex-grow">
-                    {article.roofTitle && (
-                      <span className="text-xs text-primary font-medium">
-                        {article.roofTitle}
+      <ul className="space-y-6">
+        {articles.map((article) => (
+          <li key={article.id}>
+            <Link
+              href={`/${article.categorySlug}/${article.slug}`}
+              className="group block"
+              aria-labelledby={`aside-article-${article.id}-title`}
+            >
+              <article className="flex gap-4">
+                <div className="relative w-36 h-36 flex-shrink-0">
+                  <OptimizedImage
+                    src={article.image?.src || ""}
+                    alt=""
+                    width={144}
+                    height={144}
+                    className="object-cover"
+                    sizes="144px"
+                  />
+                </div>
+                <div>
+                  {article.roofTitle && (
+                    <p className="text-xs text-primary font-medium">
+                      {article.roofTitle}
+                    </p>
+                  )}
+                  <h3
+                    id={`aside-article-${article.id}-title`}
+                    className="text-base font-medium group-hover:text-primary transition-colors"
+                  >
+                    {article.titleShort || article.title}
+                  </h3>
+                  <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                    {article.comments > 0 && (
+                      <span className="flex items-center gap-1">
+                        {article.comments}
+                        <MessageSquare size={14} aria-label="Comments" />
                       </span>
                     )}
-                    <h3 className="text-base leading-snug group-hover:text-red-500">
-                      {article.titleShort || article.title}
-                    </h3>
-                    <div className="text-sm text-gray-500 mt-1 flex items-center gap-1">
-                      {article.comments > 0 && (
-                        <div className="flex items-center gap-1">
-                          {article.comments} <MessageSquareQuote size={13} />|
-                        </div>
-                      )}
-                      {article.author && <span>{article.author}</span>}
-                      {article.author && article.time && <span>|</span>}
-                      {article.time && (
-                        <time
-                          dateTime={new Date(article.time * 1000).toISOString()}
-                        >
-                          {new Date(article.time * 1000).toLocaleTimeString(
-                            "en-US",
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                              hour12: false,
-                            }
-                          )}
-                        </time>
-                      )}
-                    </div>
+                    {article.author && <span>{article.author}</span>}
+                    {article.time && (
+                      <time
+                        dateTime={new Date(article.time * 1000).toISOString()}
+                      >
+                        {new Date(article.time * 1000).toLocaleTimeString(
+                          "en-US",
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false,
+                          }
+                        )}
+                      </time>
+                    )}
                   </div>
-                </article>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-    </aside>
+                </div>
+              </article>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
-}
+});
+
+AsideSection.displayName = "AsideSection";

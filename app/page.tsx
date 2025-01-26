@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Metadata } from "next";
 import { getHomeData, getCategoryArticles } from "@/utils/home-data";
 import { HomeMainContent } from "@/types";
@@ -11,15 +12,11 @@ import { generateHomePageSchema } from "@/components/seo/metadata";
 export const metadata: Metadata = {
   title: "JFeed - Israel News",
   description:
-    "JFEED - the latest news and headlines, news from the Jewish world and Israel, weather, TV, radio highlights and much more from across the globe.",
-  robots: {
-    index: true,
-    follow: true,
-  },
+    "JFEED - the latest news and headlines from Israel and the Jewish world",
+  robots: { index: true, follow: true },
   openGraph: {
     title: "JFeed - Israel News",
-    description:
-      "JFEED - the latest news and headlines, news from the Jewish world and Israel, weather, TV, radio highlights and much more from across the globe.",
+    description: "Latest news from Israel and the Jewish world",
     url: process.env.NEXT_PUBLIC_WEBSITE_URL,
     siteName: "JFeed",
     images: [
@@ -35,21 +32,20 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.jfeed.com",
     types: {
-      "application/rss+xml": `https://www.jfeed.com/v1/rss/articles/latest/rss2`,
+      "application/rss+xml":
+        "https://www.jfeed.com/v1/rss/articles/latest/rss2",
     },
   },
 };
 
-export default async function Home() {
+async function Home() {
   const {
     homeFrontal,
     mostRead,
     mostCommented,
     homeMainContent,
     seenArticleIds,
-  } = await getHomeData({
-    includeMainContent: true,
-  });
+  } = await getHomeData({ includeMainContent: true });
 
   const categoryContentItems =
     homeMainContent?.filter(
@@ -63,15 +59,8 @@ export default async function Home() {
           content.category.slug,
           seenArticleIds
         );
-
-        categoryArticles.forEach((article) => {
-          seenArticleIds.add(article.id);
-        });
-
-        return {
-          category: content.category,
-          articles: categoryArticles,
-        };
+        categoryArticles.forEach((article) => seenArticleIds.add(article.id));
+        return { category: content.category, articles: categoryArticles };
       }
       return { category: content.category, articles: [] };
     })
@@ -79,31 +68,26 @@ export default async function Home() {
 
   return (
     <>
-      {/* Structured Data Scripts */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(generateHomePageSchema()),
         }}
       />
-      <main>
-        {/* Main Article */}
+      <main className="min-h-screen">
         <MainArticle article={homeFrontal[0]} />
 
         <div className="grid grid-cols-12 md:gap-4 mt-6">
-          <div className="col-span-12 lg:col-span-8">
-            {/* Featured Articles */}
+          <section
+            className="col-span-12 lg:col-span-8"
+            aria-label="Featured Articles"
+          >
             <div className="space-y-4">
               {homeFrontal?.slice(1).map((article) => (
-                <ArticleItemFullWidth
-                  key={article.id}
-                  article={article}
-                  withSubTitle
-                />
+                <ArticleItemFullWidth key={article.id} article={article} />
               ))}
             </div>
 
-            {/* Category Sections */}
             <div className="space-y-8 mt-8">
               {homeCategoriesArticles.map(
                 (categoryArticles) =>
@@ -117,10 +101,12 @@ export default async function Home() {
                   )
               )}
             </div>
-          </div>
+          </section>
 
-          {/* Sidebar */}
-          <aside className="hidden lg:block col-span-4">
+          <aside
+            className="hidden lg:block col-span-4"
+            aria-label="Popular Articles"
+          >
             <div className="sticky top-20 space-y-8">
               {mostCommented.length > 0 && (
                 <AsideSection articles={mostCommented} title="Most Talked" />
@@ -137,3 +123,5 @@ export default async function Home() {
     </>
   );
 }
+
+export default memo(Home);
