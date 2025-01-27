@@ -168,19 +168,19 @@ export default async function CategoryPage({
               </div>
 
               {(!category.subCategories ||
-                category.subCategories.length === 0) && (
-                <div className="mt-8">
-                  <Pagination
-                    currentPage={currentPage}
-                    totalItems={
-                      currentPage * ITEMS_PER_PAGE +
-                      (hasMore ? ITEMS_PER_PAGE : 0)
-                    }
-                    itemsPerPage={ITEMS_PER_PAGE}
-                    baseUrl={`/${categorySlug}`}
-                  />
-                </div>
-              )}
+                category.subCategories.length === 0) &&
+                mainArticles.length > 0 && (
+                  <div className="mt-8">
+                    <Pagination
+                      currentPage={currentPage} // Keep 0-based indexing for internal handling
+                      totalItems={
+                        (currentPage + 1) * ITEMS_PER_PAGE + (hasMore ? 1 : 0)
+                      }
+                      itemsPerPage={ITEMS_PER_PAGE}
+                      baseUrl={`/${categorySlug}`}
+                    />
+                  </div>
+                )}
             </>
           ) : (
             <div className="bg-gray-50 rounded-lg p-8 text-center">

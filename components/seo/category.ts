@@ -55,7 +55,7 @@ export function generateCategoryMetadata(
 
   const title = isFirstPage
     ? category.metaTitle || category.title
-    : `${category.metaTitle || category.title} - Page ${currentPage}`;
+    : `${category.metaTitle || category.title}`;
 
   return {
     title: {
