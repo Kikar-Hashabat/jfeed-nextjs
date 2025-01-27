@@ -109,7 +109,7 @@ const Footer = memo(() => {
             >
               <Image
                 src="/icons/facebook.svg"
-                alt="Twitter"
+                alt="Facebook"
                 width={33}
                 height={33}
                 className="rounded-sm p-1"

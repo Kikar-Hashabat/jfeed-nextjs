@@ -50,7 +50,7 @@ async function getAuthorData(
 }> {
   const articles = await getArticlesV2({
     authorSlug: slug,
-    page: page - 1,
+    page: page,
     limit: ITEMS_PER_PAGE,
   });
 
@@ -122,7 +122,7 @@ export default async function AuthorPage({
       <main className="container mx-auto">
         {/* Author Header */}
         <div>
-          <div className="flex items-start md:gap-4">
+          <div className="flex items-start md:gap-4 flex-col items-center md:flex-row  gap-3 ">
             {/* Author Image */}
             {author.image && (
               <div className="flex-shrink-0">
@@ -162,7 +162,12 @@ export default async function AuthorPage({
                     rel="noopener noreferrer"
                     className="text-gray-600 hover:text-blue-500"
                   >
-                    <X size={20} />
+                    <Image
+                      src="/icons/x.svg"
+                      alt="Twitter"
+                      width={25}
+                      height={25}
+                    />
                   </Link>
                 )}
                 {author.facebook && (
@@ -172,7 +177,13 @@ export default async function AuthorPage({
                     rel="noopener noreferrer"
                     className="text-gray-600 hover:text-blue-600"
                   >
-                    <Facebook size={20} />
+                    <Image
+                      src="/icons/facebook.svg"
+                      alt="Facebook"
+                      width={25}
+                      height={25}
+                      className="rounded-sm p-1"
+                    />
                   </Link>
                 )}
               </div>
