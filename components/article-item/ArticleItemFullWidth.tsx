@@ -29,7 +29,7 @@ const ArticleItemFullWidth = memo(({ article }: ArticleItemFullWidthProps) => {
             src={article.image?.src || ""}
             alt=""
             fill
-            className="object-cover"
+            className="object-cover rounded"
             sizes="(max-width: 768px) 160px, 260px"
             width={300}
           />
