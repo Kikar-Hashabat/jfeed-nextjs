@@ -122,7 +122,7 @@ export default async function AuthorPage({
       <main className="container mx-auto">
         {/* Author Header */}
         <div>
-          <div className="flex items-start md:gap-4 flex-col items-center md:flex-row  gap-3 ">
+          <div className="flex md:gap-4 flex-col items-center md:flex-row  gap-3 ">
             {/* Author Image */}
             {author.image && (
               <div className="flex-shrink-0">
