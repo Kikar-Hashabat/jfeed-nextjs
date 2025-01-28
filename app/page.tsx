@@ -15,6 +15,9 @@ import ScrollArticles from "@/components/article-layouts/ScrollArticles";
 import ArticleLayout from "@/components/article-layouts/ArticleLayout";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import Link from "next/link";
+import { AsideSection } from "@/components/article-item/AsideSection";
+import AboutUsHome from "@/components/pages/home/AboutUsHome";
+import { CategorySection } from "@/components/pages/home/CategorySection";
 
 export const metadata: Metadata = {
   title: "JFeed - Israel News",
@@ -233,6 +236,53 @@ async function Home() {
           </div>
         </div>
       </div>
+
+      <main className="min-h-screen max-w-7xl mx-auto px-4 py-6">
+        <MainArticle article={homeFrontal[0]} />
+
+        <div className="grid grid-cols-12 md:gap-4 mt-6">
+          <section
+            className="col-span-12 lg:col-span-8"
+            aria-label="Featured Articles"
+          >
+            <div className="space-y-4">
+              {homeFrontal?.slice(1).map((article) => (
+                <ArticleItemFullWidth key={article.id} article={article} />
+              ))}
+            </div>
+
+            <div className="space-y-8 mt-8">
+              {homeCategoriesArticles.map(
+                (categoryArticles) =>
+                  categoryArticles && (
+                    <CategorySection
+                      key={categoryArticles.category.slug}
+                      title={categoryArticles.category.name}
+                      link={categoryArticles.category?.slug}
+                      articles={categoryArticles.articles}
+                    />
+                  )
+              )}
+            </div>
+          </section>
+
+          <aside
+            className="hidden lg:block col-span-4"
+            aria-label="Popular Articles"
+          >
+            <div className="sticky top-20 space-y-8">
+              {mostCommented.length > 0 && (
+                <AsideSection articles={mostCommented} title="Most Talked" />
+              )}
+              {mostRead.length > 0 && (
+                <AsideSection articles={mostRead} title="Most Read" />
+              )}
+            </div>
+          </aside>
+        </div>
+
+        <AboutUsHome />
+      </main>
     </>
   );
 }
