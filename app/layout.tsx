@@ -113,9 +113,9 @@ export default function RootLayout({
         <Header />
         <main
           id="main-content"
-          className="flex-grow pt-20 md:pt-5 min-h-screen"
+          className="flex-grow pt-16 md:pt-5 min-h-screen overflow-hidden"
         >
-          <div className="max-w-7xl mx-auto px-4">{children}</div>
+          {children}
         </main>
         <Footer />
         <Analytics />

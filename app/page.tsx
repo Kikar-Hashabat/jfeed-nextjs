@@ -2,16 +2,17 @@ import { memo } from "react";
 import { Metadata } from "next";
 import { getHomeData, getCategoryArticles } from "@/utils/home-data";
 import { HomeMainContent } from "@/types";
-import MainArticle from "@/components/pages/home/MainArticle";
-import { CategorySection } from "@/components/pages/home/CategorySection";
-import ArticleItemFullWidth from "@/components/article-item/ArticleItemFullWidth";
-import Aside from "@/components/article-item/Aside";
-import AboutUsHome from "@/components/pages/home/AboutUsHome";
 import { generateHomePageSchema } from "@/components/seo/metadata";
-import { AsideSection } from "@/components/article-item/AsideSection";
-import MainAr from "@/components/pages/home/Main";
-import { CategoryHeader } from "@/components/CategoryHeader";
-import AsideCategory from "@/components/article-item/AsideCategory";
+import CategoryLayout, {
+  ArticleItemFullWidth,
+  CategoryHeader,
+  MainArticle,
+  MobileLatestNews,
+} from "@/components/article-layouts/Categorylayout";
+import ScrollArticles from "@/components/article-layouts/ScrollArticles";
+import ArticleLayout from "@/components/article-layouts/ArticleLayout";
+import { OptimizedImage } from "@/components/OptimizedImage";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "JFeed - Israel News",
@@ -78,121 +79,194 @@ async function Home() {
           __html: JSON.stringify(generateHomePageSchema()),
         }}
       />
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex flex-col md:flex-row gap-6 py-8">
+
+      {/* Container */}
+      <div className="max-w-7xl mx-auto md:px-4">
+        {/* Main content with asides */}
+        <div className="flex flex-col md:flex-row gap-6 md:py-8">
           {/* Left content container */}
           <div className="flex-1">
-            <div className="grid grid-cols-1 md:grid-cols-9 gap-6">
+            <div className="md:grid grid-cols-1 md:grid-cols-9 gap-6">
               {/* Left Aside */}
               <div className="md:col-span-3">
-                <div className="mb-6">
-                  <Aside
-                    articles={mostRead}
-                    withImage={false}
+                <div className="mb-6 hidden md:block">
+                  <CategoryLayout
+                    articles={homeFrontal.slice(0, 5)}
                     title="Latest News"
+                    withImage={false}
+                    hasMore={true}
+                    type="aside-with-border"
                   />
                 </div>
               </div>
 
               {/* Main Content */}
-              <div className="md:col-span-6 mt-6">
-                <MainAr article={homeFrontal[0]} />
+              <div className="md:col-span-6 md:mt-6">
+                <MainArticle article={homeFrontal[0]} />
               </div>
 
               {/* Green div under main and left aside */}
-              <div className="md:col-span-9 bg-green-300 h-6 w-full"></div>
+              <div className="md:col-span-9 bg-green-300 h-6 w-full mb-4"></div>
 
               {/* Additional articles under green div */}
-              <div className="md:col-span-9">
+              <div className="md:col-span-9 px-4 md:px-0">
                 {homeFrontal?.slice(1).map((article) => (
                   <ArticleItemFullWidth key={article.id} article={article} />
                 ))}
               </div>
 
+              <div className="md:hidden flex flex-col items-start max-w-[400px]">
+                <MobileLatestNews articles={homeFrontal.slice(1, 4)} />
+              </div>
+
               {/* News Category div */}
-              <div className="md:col-span-9 mt-6">
+              <div className="md:col-span-9 mt-3 px-4 md:px-0">
                 <CategoryHeader
                   title="news"
                   seeMoreText="see more"
                   iconSrc="/icons/right.svg"
+                  color="red-700"
                 />
-                <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-                  <AsideCategory
-                    articles={mostRead}
-                    layout="one"
-                    withImage={true}
+                <div className="hidden md:grid  grid-cols-1 md:grid-cols-1 gap-6 mt-3">
+                  <CategoryLayout
+                    articles={mostRead.slice(0, 4)}
                     title="news"
+                    withImage={false}
+                    hasMore={true}
+                    type="spotlight-split-aside"
                   />
+                </div>
+                <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
+                  <section className="grid grid-cols-1 gap-4">
+                    {homeFrontal.slice(0, 6).map((article) => (
+                      <Link
+                        href={`/${article.categorySlug}/${article.slug}`}
+                        key={article.id}
+                        className="group flex"
+                      >
+                        <div className="">
+                          {article.image?.src && (
+                            <div className="relative aspect-[1.74] w-full overflow-hidden">
+                              <OptimizedImage
+                                src={article.image.src}
+                                alt={article.image.alt || ""}
+                                fill
+                                sizes="(max-width: 768px) 160px, 260px"
+                                className="object-cover rounded"
+                              />
+                            </div>
+                          )}
+
+                          <h3 className="text-base font-bold">
+                            {article.titleShort || article.title}
+                          </h3>
+
+                          <div className="flex items-center text-xs text-zinc-400 uppercase">
+                            <time
+                              dateTime={new Date(article.time).toISOString()}
+                            >
+                              {new Date(article.time).toLocaleDateString(
+                                "de-DE"
+                              )}
+                            </time>
+                            {article.categorySlug && (
+                              <>
+                                <span className="mx-2">|</span>
+                                <span>{article.categorySlug}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </section>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Aside container - separate from main grid */}
+          {/* Right Aside container */}
           <div className="md:w-1/4">
             {/* First Right Aside */}
             <div className="mb-6">
-              <Aside articles={mostRead} withImage={true} title="Most Talked" />
+              <CategoryLayout
+                articles={mostRead}
+                title="Most Talked"
+                withImage={true}
+                hasMore={true}
+                type="aside-with-border"
+              />
             </div>
 
             {/* Second Right Aside */}
             <div className="mb-6">
-              <Aside
-                articles={mostRead}
-                withImage={true}
+              <CategoryLayout
+                articles={mostRead.slice(0, 3)}
                 title="Editor's Pick"
+                withImage={true}
+                hasMore={true}
+                type="aside-with-border"
               />
             </div>
           </div>
         </div>
+
+        {/* Full width sections */}
+        {/* Sports Category */}
+        <div className="w-full mt-6">
+          <CategoryHeader
+            title="jewish-world"
+            seeMoreText="see more"
+            iconSrc="/icons/right.svg"
+            color="red-700"
+          />
+          <div className="grid grid-cols-1 gap-6 mt-3">
+            <CategoryLayout
+              articles={mostRead.slice(0, 4)}
+              title="jewish-world"
+              withImage={true}
+              hasMore={true}
+            />
+          </div>
+        </div>
       </div>
 
-      <main className="min-h-screen">
-        <MainArticle article={homeFrontal[0]} />
-
-        <div className="grid grid-cols-12 md:gap-4 mt-6">
-          <section
-            className="col-span-12 lg:col-span-8"
-            aria-label="Featured Articles"
-          >
-            <div className="space-y-4">
-              {homeFrontal?.slice(1).map((article) => (
-                <ArticleItemFullWidth key={article.id} article={article} />
-              ))}
-            </div>
-
-            <div className="space-y-8 mt-8">
-              {homeCategoriesArticles.map(
-                (categoryArticles) =>
-                  categoryArticles && (
-                    <CategorySection
-                      key={categoryArticles.category.slug}
-                      title={categoryArticles.category.name}
-                      link={categoryArticles.category?.slug}
-                      articles={categoryArticles.articles}
-                    />
-                  )
-              )}
-            </div>
-          </section>
-
-          <aside
-            className="hidden lg:block col-span-4"
-            aria-label="Popular Articles"
-          >
-            <div className="sticky top-20 space-y-8">
-              {mostCommented.length > 0 && (
-                <AsideSection articles={mostCommented} title="Most Talked" />
-              )}
-              {mostRead.length > 0 && (
-                <AsideSection articles={mostRead} title="Most Read" />
-              )}
-            </div>
-          </aside>
+      {/* Technology Category - Full Width Background */}
+      <div className="w-full bg-[#157BC3] mt-4">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <CategoryHeader
+            title="top videos"
+            seeMoreText="see more"
+            iconSrc="/icons/right.svg"
+            color="green-500"
+          />
+          <div className="grid grid-cols-1 gap-6 mt-3">
+            <ScrollArticles articles={homeFrontal} />
+          </div>
         </div>
+      </div>
 
-        <AboutUsHome />
-      </main>
+      {/* Container for remaining sections */}
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Entertainment Category */}
+        <div className="w-full mt-6">
+          <CategoryHeader
+            title="entertainment"
+            seeMoreText="see more"
+            iconSrc="/icons/right.svg"
+            color="red-700"
+          />
+          <div className="grid grid-cols-1 gap-6 mt-3">
+            <CategoryLayout
+              articles={mostRead.slice(0, 4)}
+              title="jewish-world"
+              withImage={true}
+              type="spotlight-split"
+              hasMore={false}
+            />
+          </div>
+        </div>
+      </div>
     </>
   );
 }
