@@ -4,8 +4,10 @@ import { getHomeData, getCategoryArticles } from "@/utils/home-data";
 import { HomeMainContent } from "@/types";
 import { generateHomePageSchema } from "@/components/seo/metadata";
 import CategoryLayout, {
+  ArticleCard,
   ArticleItemFullWidth,
   CategoryHeader,
+  CategoryLeftImage,
   MainArticle,
   MobileLatestNews,
 } from "@/components/article-layouts/Categorylayout";
@@ -136,57 +138,17 @@ async function Home() {
                     type="spotlight-split-aside"
                   />
                 </div>
+
                 <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
-                  <section className="grid grid-cols-1 gap-4">
-                    {homeFrontal.slice(0, 6).map((article) => (
-                      <Link
-                        href={`/${article.categorySlug}/${article.slug}`}
-                        key={article.id}
-                        className="group flex"
-                      >
-                        <div className="">
-                          {article.image?.src && (
-                            <div className="relative aspect-[1.74] w-full overflow-hidden">
-                              <OptimizedImage
-                                src={article.image.src}
-                                alt={article.image.alt || ""}
-                                fill
-                                sizes="(max-width: 768px) 160px, 260px"
-                                className="object-cover rounded"
-                              />
-                            </div>
-                          )}
-
-                          <h3 className="text-base font-bold">
-                            {article.titleShort || article.title}
-                          </h3>
-
-                          <div className="flex items-center text-xs text-zinc-400 uppercase">
-                            <time
-                              dateTime={new Date(article.time).toISOString()}
-                            >
-                              {new Date(article.time).toLocaleDateString(
-                                "de-DE"
-                              )}
-                            </time>
-                            {article.categorySlug && (
-                              <>
-                                <span className="mx-2">|</span>
-                                <span>{article.categorySlug}</span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </section>
+                  <CategoryLeftImage articles={mostRead.slice(0, 4)} />
+                  <ArticleCard articles={mostRead} withImage={false} />
                 </div>
               </div>
             </div>
           </div>
 
           {/* Right Aside container */}
-          <div className="md:w-1/4">
+          <div className="md:w-1/4 hidden md:block">
             {/* First Right Aside */}
             <div className="mb-6">
               <CategoryLayout
@@ -213,20 +175,24 @@ async function Home() {
 
         {/* Full width sections */}
         {/* Sports Category */}
-        <div className="w-full mt-6">
+        <div className="w-full mt-6 px-4 md:px-0">
           <CategoryHeader
             title="jewish-world"
             seeMoreText="see more"
             iconSrc="/icons/right.svg"
             color="red-700"
           />
-          <div className="grid grid-cols-1 gap-6 mt-3">
+          <div className="grid-cols-1 gap-6 mt-3 hidden md:grid">
             <CategoryLayout
               articles={mostRead.slice(0, 4)}
               title="jewish-world"
               withImage={true}
               hasMore={true}
             />
+          </div>
+          <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
+            <ArticleCard articles={mostRead.slice(0, 1)} withImage={true} />
+            <ArticleCard articles={mostRead} withImage={false} />
           </div>
         </div>
       </div>
