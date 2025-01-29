@@ -279,9 +279,8 @@ const AsideWithBorder = memo(
               withImage={withImage && index === 0}
               className="w-60 max-w-full"
             />
-            {!withImage && (
-              <hr className="mt-3 border border-solid border-neutral-200" />
-            )}
+
+            <hr className="mt-3 border border-solid border-neutral-200" />
           </li>
         ))}
         {withImage && (
@@ -309,7 +308,7 @@ const AsideWithBorder = memo(
 const MobileArticleList = ({ articles }: { articles: Article[] }) => (
   <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
     <section className="grid grid-cols-1 gap-4">
-      {articles.slice(0, 6).map((article: Article) => (
+      {articles.slice(0, 4).map((article: Article) => (
         <Link
           href={`/${article.categorySlug}/${article.slug}`}
           key={article.id}
@@ -335,6 +334,14 @@ const MobileArticleList = ({ articles }: { articles: Article[] }) => (
           </div>
         </Link>
       ))}
+      <div className="flex flex-col gap-4">
+        {articles.slice(4, 7).map((article) => (
+          <>
+            <BaseArticleCard key={article.id} article={article} />
+            <hr className="border-t border-neutral-200" />
+          </>
+        ))}
+      </div>
     </section>
   </div>
 );
@@ -482,10 +489,7 @@ const CategorySection: React.FC<{
         </div>
         <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
           <BaseArticleCard article={articles[0]} withImage className="mb-4" />
-          <BaseArticleList
-            articles={articles.slice(1, 6)}
-            showDividers={false}
-          />
+          <BaseArticleList articles={articles.slice(1, 6)} showDividers />
         </div>
       </div>
     );
@@ -493,7 +497,7 @@ const CategorySection: React.FC<{
 
   // Style 3: Spotlight style layout
   return (
-    <div className="w-full mt-6">
+    <div className="w-full mt-6 px-4 md:px-0">
       <CategoryHeader {...commonProps} />
       <div className="grid-cols-1 gap-6 mt-3 hidden md:grid">
         <div className="space-y-6">
@@ -518,8 +522,8 @@ const CategorySection: React.FC<{
       </div>
       <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
         <BaseArticleCard article={articles[0]} withImage className="mb-4" />
-        <MobileArticleList articles={articles.slice(0, 2)} />
-        <BaseArticleList articles={articles.slice(0, 2)} showDividers={false} />
+        <MobileArticleList articles={articles.slice(1, 3)} />
+        <BaseArticleList articles={articles.slice(3, 6)} showDividers />
       </div>
     </div>
   );
