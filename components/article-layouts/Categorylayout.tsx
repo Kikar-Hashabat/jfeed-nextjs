@@ -238,7 +238,19 @@ const AsideMore = memo(
         <div className="w-2 h-6 bg-primary"></div>
         <h2 className="text-base text-primary font-bold uppercase">{title}</h2>
       </div>
-      <BaseArticleList articles={articles.slice(0, 4)} withImage={withImage} />
+      <div className="flex flex-col gap-4">
+        {articles.slice(0, 4).map((article, index) => (
+          <div key={article.id}>
+            <BaseArticleCard
+              article={article}
+              withImage={withImage && index === 0}
+            />
+            {index < articles.length - 1 && (
+              <hr className="my-4 border-t border-neutral-200" />
+            )}
+          </div>
+        ))}
+      </div>
     </section>
   )
 );
