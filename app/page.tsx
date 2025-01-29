@@ -32,7 +32,14 @@ export const metadata: Metadata = {
         alt: "JFeed Logo",
       },
     ],
+    locale: "en_US",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "JFeed - Israel News",
+    description: "Latest news from Israel and the Jewish world",
+    images: ["https://www.jfeed.com/logo/jfeed-logo_512.png"],
   },
   alternates: {
     canonical: "https://www.jfeed.com",
@@ -93,96 +100,119 @@ async function Home() {
           __html: JSON.stringify(generateHomePageSchema()),
         }}
       />
-      <main>
-        <div className="max-w-7xl mx-auto md:px-4">
+      <main className="pb-8" role="main" aria-label="Home page content">
+        {/* Initial content section */}
+        <div className="max-w-7xl mx-auto px-4">
           {/* Main content with asides */}
-          <div className="flex flex-col md:flex-row gap-6 md:py-8">
+          <div className="flex flex-col md:flex-row gap-4 lg:gap-6">
             {/* Left content container */}
-            <div className="flex-1">
-              <div className="md:grid grid-cols-1 md:grid-cols-9 gap-6">
+            <section className="flex-1" aria-label="Featured content">
+              <div className="grid grid-cols-1 md:grid-cols-9 md:gap-4 lg:gap-6">
                 {/* Left Aside */}
-                <div className="md:col-span-3">
-                  <div className="mb-6 hidden md:block">
+                <aside
+                  className="md:col-span-3"
+                  aria-label="Latest news sidebar"
+                >
+                  <div className="mb-4 lg:mb-6 hidden md:block">
                     <AsideWithBorder
                       articles={homeFrontal.slice(0, 6)}
                       withImage={false}
                       title="Latest News"
                     />
                   </div>
-                </div>
+                </aside>
 
                 {/* Main Content */}
-                <div className="md:col-span-6 md:mt-6">
+                <div className="md:col-span-6 lg:mt-10 md:mt-10">
                   <MainArticle article={homeFrontal[0]} />
                 </div>
 
-                {/* Green div under main and left aside */}
-                <div className="md:col-span-9 bg-green-300 h-6 w-full mb-4"></div>
+                {/* Accent Bar */}
+                <div
+                  className="md:col-span-9 bg-green-300 h-6 w-full mb-4"
+                  role="presentation"
+                />
 
-                {/* Additional articles under green div */}
-                <div className="md:col-span-9 px-4 md:px-0">
+                {/* Additional Articles */}
+                <section className="md:col-span-9" aria-label="Latest articles">
                   {homeFrontal?.slice(1).map((article) => (
                     <ArticleItemFullWidth key={article.id} article={article} />
                   ))}
-                </div>
+                </section>
 
-                <div className="md:hidden flex flex-col items-start max-w-[400px]">
+                {/* Mobile Latest News */}
+                <div className="md:hidden flex flex-col items-start max-w-[400px] w-full">
                   <MobileLatestNews articles={homeFrontal.slice(1, 4)} />
                 </div>
               </div>
-            </div>
+            </section>
 
             {/* Right Aside container */}
-            <div className="md:w-1/4 hidden lg:block">
-              {/* First Right Aside */}
-              <div className="mb-6">
+            <aside
+              className="md:w-1/4 hidden lg:block space-y-6"
+              aria-label="Secondary content"
+            >
+              {/* Most Talked Articles */}
+              <section aria-label="Most discussed articles">
                 <AsideWithBorder
                   articles={mostCommented}
                   withImage={true}
                   title="Most Talked"
                 />
-              </div>
+              </section>
 
-              {/* Second Right Aside */}
-              <div className="mb-6">
+              {/* Editor's Picks */}
+              <section aria-label="Editor's selected articles">
                 <AsideWithBorder
                   articles={homeFrontal.slice(0, 3)}
                   withImage={true}
                   title="Editor's Pick"
                 />
-              </div>
-            </div>
+              </section>
+            </aside>
           </div>
+        </div>
 
-          {/* Categories with rotating styles */}
+        {/* Category Sections with full-width video section */}
+        <div>
           {categories.map((category, index) => (
             <React.Fragment key={category}>
-              <CategorySection
-                style={(index % 3) + 1}
-                category={category}
-                articles={categorizedArticles[category]?.articles}
-                index={index}
-              />
+              {/* Regular category section - contained width */}
+              <div className="max-w-7xl mx-auto px-4">
+                <CategorySection
+                  style={(index % 3) + 1}
+                  category={categorizedArticles[category]?.title || category}
+                  articles={categorizedArticles[category]?.articles}
+                  index={index}
+                />
+              </div>
+
+              {/* Video Section after second category - full width */}
               {index === 1 && (
-                <div className="w-screen relative left-[50%] right-[50%] mx-[-50vw] bg-[#157BC3] mt-4">
-                  <div className="max-w-7xl mx-auto px-4 py-6">
-                    <CategoryHeader
-                      title="top videos"
-                      seeMoreText="see more"
-                      iconSrc="/icons/right.svg"
-                      color="green-500"
-                    />
-                    <div className="grid grid-cols-1 gap-6 mt-3">
-                      <ScrollArticles articles={homeFrontal} />
+                <div className="w-full bg-[#157BC3] mt-4">
+                  <section className="py-6" aria-label="Featured videos">
+                    <div className="max-w-7xl mx-auto px-4">
+                      <CategoryHeader
+                        title="top videos"
+                        seeMoreText="see more"
+                        iconSrc="/icons/right.svg"
+                        color="green-500"
+                      />
+                      <div className="grid grid-cols-1 gap-4 lg:gap-6 mt-4">
+                        <ScrollArticles articles={homeFrontal} />
+                      </div>
                     </div>
-                  </div>
+                  </section>
                 </div>
               )}
             </React.Fragment>
           ))}
         </div>
 
-        <AboutUsHome />
+        {/* About Us Section */}
+        <div className="max-w-7xl mx-auto px-4">
+          <AboutUsHome />
+        </div>
       </main>
     </>
   );
