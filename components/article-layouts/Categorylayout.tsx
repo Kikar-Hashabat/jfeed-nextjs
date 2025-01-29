@@ -5,7 +5,408 @@ import { memo } from "react";
 import Image from "next/image";
 import { MessageSquare } from "lucide-react";
 
-export const ArticleCard = ({
+export const CategorySection: React.FC<{
+  style: number;
+  category: string;
+  articles: Article[];
+  index: number;
+}> = ({ style, category, articles, index }) => {
+  if (index === 0) {
+    return (
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Main content area */}
+          <div className="flex-1">
+            <div className="w-full mt-6 px-4 md:px-0">
+              <CategoryHeader
+                title={category}
+                seeMoreText="see more"
+                iconSrc="/icons/right.svg"
+                color="red-700"
+              />
+              <div className="hidden md:grid grid-cols-1 gap-6 mt-3">
+                <ArticleLayoutOne articles={articles || []} withImage={false} />
+              </div>
+              <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
+                <ArticleLayoutOneMobile
+                  articles={articles?.slice(0, 4) || []}
+                />
+                <ArticleCard
+                  articles={articles?.slice(3, 8) || []}
+                  withImage={false}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Right aside */}
+          <div className="md:w-1/4 hidden lg:block">
+            <div className="mb-6">
+              <AsideWithBorder
+                articles={articles?.slice(0, 3) || []}
+                withImage={true}
+                title="More from this category"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (style === 1) {
+    return (
+      <div className="w-full mt-6 px-4 md:px-0">
+        <CategoryHeader
+          title={category}
+          seeMoreText="see more"
+          iconSrc="/icons/right.svg"
+          color="red-700"
+        />
+        <div className="hidden md:grid grid-cols-1 gap-6 mt-3">
+          <ArticleLayoutOne articles={articles || []} withImage={false} />
+        </div>
+        <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
+          <ArticleLayoutOneMobile articles={articles?.slice(0, 4) || []} />
+          <ArticleCard
+            articles={articles?.slice(3, 8) || []}
+            withImage={false}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (style === 2) {
+    return (
+      <div className="w-full mt-6 px-4 md:px-0">
+        <CategoryHeader
+          title={category}
+          seeMoreText="see more"
+          iconSrc="/icons/right.svg"
+          color="red-700"
+        />
+        <div className="grid-cols-1 gap-6 mt-3 hidden md:grid">
+          <div className="flex gap-8">
+            <div className="flex-1">
+              <MainCategory article={articles?.[0]} />
+              <section className="grid grid-cols-3 gap-4">
+                {articles?.slice(1, 4).map((article) => (
+                  <ArticleLayout key={article.id} article={article} />
+                ))}
+              </section>
+            </div>
+            <div className="w-72 lg:block hidden">
+              <AsideMore
+                articles={articles?.slice(4, 8) || []}
+                withImage={true}
+                title="MORE"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
+          <ArticleCard
+            articles={articles?.slice(0, 1) || []}
+            withImage={true}
+          />
+          <ArticleCard
+            articles={articles?.slice(1, 6) || []}
+            withImage={false}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Style 3: Spotlight style layout
+  return (
+    <div className="w-full mt-6">
+      <CategoryHeader
+        title={category}
+        seeMoreText="see more"
+        iconSrc="/icons/right.svg"
+        color="red-700"
+      />
+      <div className="grid-cols-1 gap-6 mt-3 hidden md:grid">
+        <div className="space-y-6">
+          <div className="flex flex-col md:flex-row gap-8">
+            <div className="flex-1">
+              <SpotlightMain article={articles?.[0]} />
+            </div>
+            <div className="w-[40%]">
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                {articles?.slice(1, 3).map((article) => (
+                  <ArticleCard
+                    key={article.id}
+                    articles={[article]}
+                    withImage={true}
+                  />
+                ))}
+              </div>
+              <div>
+                <ArticleCard
+                  articles={articles?.slice(3, 6) || []}
+                  withImage={false}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
+        <ArticleCard articles={articles?.slice(0, 1) || []} withImage={true} />
+        <CategoryLeftImage articles={articles?.slice(0, 2) || []} />
+        <ArticleCard articles={articles?.slice(0, 2) || []} withImage={false} />
+      </div>
+    </div>
+  );
+};
+
+const MainCategory = ({ article }: { article: Article }) => {
+  return (
+    <article>
+      <Link href={`/${article.categorySlug}/${article.slug}`} className="block">
+        <div
+          className={`flex flex-col md:flex-row border-r-0 rounded overflow-hidden cursor-pointer h-full mb-4
+              ${article.isPromoted ? "bg-gray-50" : "bg-white"}`}
+        >
+          {/* Content Section */}
+          <div className="flex-1 flex flex-col justify-between mr-3 order-2 md:order-1">
+            <div>
+              <h2 className="text-2xl font-bold leading-tight my-4">
+                {article.titleShort || article.title}
+              </h2>
+
+              {article.subTitle && (
+                <p className="text-base md:text-lg md:min-h-[140px] leading-normal">
+                  {article.subTitleShort || article.subTitle}
+                </p>
+              )}
+            </div>
+
+            <div className="text-sm text-gray-600">
+              <div className="flex items-center gap-2 opacity-80">
+                {article.author && <span>{article.author}</span>}
+                {article.time && (
+                  <>
+                    <span>|</span>
+                    <span>{"formattedTime"}</span>
+                  </>
+                )}
+                {article.isPromoted && (
+                  <>
+                    <span>|</span>
+                    <span>Promoted</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Image Section */}
+          <div className="relative w-full md:w-[60%] aspect-video md:h-[400px] order-1 md:order-2">
+            <OptimizedImage
+              src={article.image?.src || ""}
+              alt={article.image?.alt || article.title}
+              width={600}
+              fill
+              className="object-cover rounded"
+              sizes="(min-width: 768px) 60vw, 100vw"
+              priority={true}
+            />
+          </div>
+        </div>
+      </Link>
+    </article>
+  );
+};
+
+const ArticleLayoutOne = ({
+  articles,
+  withImage,
+}: {
+  articles: Article[];
+  withImage: boolean;
+}) => {
+  return (
+    <div className="flex gap-8">
+      <div className="flex-1">
+        <section className="grid grid-cols-2 gap-4">
+          {articles?.slice(0, 4).map((article) => (
+            <ArticleLayout key={article.id} article={article} />
+          ))}
+        </section>
+      </div>
+      <div className="w-72">
+        <AsideMore
+          articles={articles.slice(4, 8)}
+          withImage={withImage}
+          title="MORE"
+        />
+      </div>
+    </div>
+  );
+};
+
+const ArticleLayoutOneMobile = ({ articles }: { articles: Article[] }) => {
+  return (
+    <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
+      <section className="grid grid-cols-1 gap-4">
+        {articles.slice(0, 6).map((article: Article) => (
+          <Link
+            href={`/${article.categorySlug}/${article.slug}`}
+            key={article.id}
+            className="group flex gap-4 items-start"
+          >
+            <div className="w-32 flex-shrink-0">
+              {article.image?.src && (
+                <div className="relative aspect-[4/3] w-full overflow-hidden">
+                  <OptimizedImage
+                    src={article.image.src}
+                    alt={article.image.alt || ""}
+                    fill
+                    sizes="(max-width: 768px) 160px, 260px"
+                    className="object-cover rounded"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1">
+              <h3 className="text-sm font-semibold leading-tight mb-2">
+                {article.titleShort || article.title}
+              </h3>
+
+              <div className="flex items-center text-xs text-zinc-400 uppercase">
+                <time dateTime={new Date(article.time).toISOString()}>
+                  {new Date(article.time).toLocaleDateString("de-DE")}
+                </time>
+                {article.categorySlug && (
+                  <>
+                    <span className="mx-2">|</span>
+                    <span>{article.categorySlug}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </Link>
+        ))}
+      </section>
+    </div>
+  );
+};
+
+const ArticleLayout = ({ article }: { article: Article }) => {
+  return (
+    <Link
+      href={`/${article.categorySlug}/${article.slug}`}
+      key={article.id}
+      className="group"
+    >
+      <div className="flex flex-col gap-2">
+        {article.image?.src && (
+          <div className="relative aspect-[1.74] w-full overflow-hidden">
+            <OptimizedImage
+              src={article.image.src}
+              alt={article.image.alt || ""}
+              fill
+              sizes="(max-width: 768px) 160px, 260px"
+              className="object-cover rounded"
+            />
+          </div>
+        )}
+
+        <h3 className="text-base font-bold">
+          {article.titleShort || article.title}
+        </h3>
+
+        <div className="flex items-center text-xs text-zinc-400 uppercase">
+          <time dateTime={new Date(article.time).toISOString()}>
+            {new Date(article.time).toLocaleDateString("de-DE")}
+          </time>
+          {article.categorySlug && (
+            <>
+              <span className="mx-2">|</span>
+              <span>{article.categorySlug}</span>
+            </>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+};
+
+const AsideMore = memo(
+  ({
+    articles,
+    withImage,
+    title,
+  }: {
+    articles: Article[];
+    withImage: boolean;
+    title: string;
+  }) => {
+    return (
+      <section className="flex flex-col">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-2 h-6 bg-primary"></div>
+          <h2 className="text-base text-primary font-bold uppercase">
+            {title}
+          </h2>
+        </div>
+
+        <ul className="flex flex-col">
+          {articles.slice(0, 4).map((article, index) => (
+            <li key={article.id}>
+              <Link
+                href={`/${article.categorySlug}/${article.slug}`}
+                className="group block"
+              >
+                <article className="flex flex-col gap-2">
+                  {withImage && index === 0 && article.image?.src && (
+                    <div className="relative aspect-[1.74] w-full overflow-hidden">
+                      <OptimizedImage
+                        src={article.image.src}
+                        alt={article.image.alt || ""}
+                        fill
+                        sizes="(max-width: 768px) 160px, 260px"
+                        className="object-cover rounded"
+                      />
+                    </div>
+                  )}
+
+                  <h3
+                    className={`text-base text-stone-700 font-${
+                      index == 0 ? "bold" : "semi-bold"
+                    } text-${
+                      index == 0 ? "stone-500" : "stone-900"
+                    } group-hover:text-red-600`}
+                  >
+                    {article.titleShort || article.title}
+                  </h3>
+
+                  <div className="flex items-center text-xs text-zinc-400 uppercase">
+                    <time dateTime={new Date(article.time).toISOString()}>
+                      {new Date(article.time).toLocaleDateString("de-DE")}
+                    </time>
+                    <span className="mx-2">|</span>
+                    <span>{article.categorySlug}</span>
+                  </div>
+                </article>
+              </Link>
+              {index < articles.length - 1 && (
+                <hr className="my-4 border-t border-neutral-200" />
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  }
+);
+
+const ArticleCard = ({
   articles,
   withImage,
 }: {
@@ -54,7 +455,7 @@ export const ArticleCard = ({
   );
 };
 
-export const CategoryLeftImage = ({ articles }: { articles: Article[] }) => {
+const CategoryLeftImage = ({ articles }: { articles: Article[] }) => {
   return (
     <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
       <section className="grid grid-cols-1 gap-4">
@@ -134,7 +535,7 @@ export const CategoryHeader = ({
   );
 };
 
-export const SpotlightMain = ({ article }: { article: Article }) => {
+const SpotlightMain = ({ article }: { article: Article }) => {
   return (
     <article>
       <Link href={`/${article.categorySlug}/${article.slug}`} className="block">

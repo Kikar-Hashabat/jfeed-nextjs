@@ -1,4 +1,3 @@
-// utils/home-data.ts
 import { Article, HomeMainContent } from "@/types";
 import { getHomeFrontal, getHomeMainContent, getArticlesV2 } from "@/utils/api";
 
