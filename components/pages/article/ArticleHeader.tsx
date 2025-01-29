@@ -33,7 +33,7 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({
         </div>
       )}
 
-      <h1 className="font-newsreader text-4xl md:text-5xl font-bold leading-tight mb-4">
+      <h1 className="font-inter text-4xl md:text-5xl font-bold leading-tight mb-4">
         {title}
       </h1>
 

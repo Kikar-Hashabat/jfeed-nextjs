@@ -114,10 +114,10 @@ const CategorySection: React.FC<CategorySectionProps> = ({
           </div>
 
           {/* Right aside */}
-          <div className="md:w-1/4 hidden md:block">
+          <div className="md:w-1/4 hidden lg:block">
             <div className="mb-6">
               <AsideWithBorder
-                articles={articles?.slice(0, 6) || []}
+                articles={articles?.slice(0, 3) || []}
                 withImage={true}
                 title="More from this category"
               />
@@ -172,7 +172,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
                 ))}
               </section>
             </div>
-            <div className="w-72">
+            <div className="w-72 lg:block hidden">
               <AsideMore
                 articles={articles?.slice(4, 8) || []}
                 withImage={true}
@@ -212,7 +212,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
             </div>
             <div className="w-[40%]">
               <div className="grid grid-cols-2 gap-4 mb-6">
-                {articles?.slice(0, 2).map((article) => (
+                {articles?.slice(1, 3).map((article) => (
                   <ArticleCard
                     key={article.id}
                     articles={[article]}
@@ -222,7 +222,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
               </div>
               <div>
                 <ArticleCard
-                  articles={articles?.slice(0, 3) || []}
+                  articles={articles?.slice(3, 6) || []}
                   withImage={false}
                 />
               </div>
@@ -329,7 +329,7 @@ async function Home() {
             </div>
 
             {/* Right Aside container */}
-            <div className="md:w-1/4 hidden md:block">
+            <div className="md:w-1/4 hidden lg:block">
               {/* First Right Aside */}
               <div className="mb-6">
                 <AsideWithBorder
