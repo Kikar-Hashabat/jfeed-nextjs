@@ -1,23 +1,38 @@
-import { memo } from "react";
+import React, { memo } from "react";
 import { Metadata } from "next";
 import { getHomeData, getCategoryArticles } from "@/utils/home-data";
-import { HomeMainContent } from "@/types";
+import { Article, HomeMainContent } from "@/types";
 import { generateHomePageSchema } from "@/components/seo/metadata";
-import CategoryLayout, {
+import {
   ArticleCard,
   ArticleItemFullWidth,
+  AsideWithBorder,
   CategoryHeader,
   CategoryLeftImage,
   MainArticle,
   MobileLatestNews,
+  SpotlightMain,
 } from "@/components/article-layouts/Categorylayout";
 import ScrollArticles from "@/components/article-layouts/ScrollArticles";
 import ArticleLayout from "@/components/article-layouts/ArticleLayout";
-import { OptimizedImage } from "@/components/OptimizedImage";
-import Link from "next/link";
-import { AsideSection } from "@/components/article-item/AsideSection";
+import {
+  ArticleLayoutOne,
+  ArticleLayoutOneMobile,
+} from "@/components/article-layouts/ArticleLayoutOne";
+import MainCategory from "@/components/article-layouts/MainCategory";
+import AsideMore from "@/components/article-layouts/AsideMore";
 import AboutUsHome from "@/components/pages/home/AboutUsHome";
-import { CategorySection } from "@/components/pages/home/CategorySection";
+
+interface CategorySectionProps {
+  style: number;
+  category: string;
+  articles: Article[];
+  index: number; // Add this
+}
+
+interface VideoSectionProps {
+  articles: Article[];
+}
 
 export const metadata: Metadata = {
   title: "JFeed - Israel News",
@@ -48,6 +63,182 @@ export const metadata: Metadata = {
   },
 };
 
+const VideoSection: React.FC<VideoSectionProps> = ({ articles }) => (
+  <div className="w-full bg-[#157BC3] mt-4">
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      <CategoryHeader
+        title="top videos"
+        seeMoreText="see more"
+        iconSrc="/icons/right.svg"
+        color="green-500"
+      />
+      <div className="grid grid-cols-1 gap-6 mt-3">
+        <ScrollArticles articles={articles} />
+      </div>
+    </div>
+  </div>
+);
+
+const CategorySection: React.FC<CategorySectionProps> = ({
+  style,
+  category,
+  articles,
+  index,
+}) => {
+  if (index === 0) {
+    return (
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Main content area */}
+          <div className="flex-1">
+            <div className="w-full mt-6 px-4 md:px-0">
+              <CategoryHeader
+                title={category}
+                seeMoreText="see more"
+                iconSrc="/icons/right.svg"
+                color="red-700"
+              />
+              <div className="hidden md:grid grid-cols-1 gap-6 mt-3">
+                <ArticleLayoutOne articles={articles || []} withImage={false} />
+              </div>
+              <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
+                <ArticleLayoutOneMobile
+                  articles={articles?.slice(0, 4) || []}
+                />
+                <ArticleCard
+                  articles={articles?.slice(3, 8) || []}
+                  withImage={false}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Right aside */}
+          <div className="md:w-1/4 hidden md:block">
+            <div className="mb-6">
+              <AsideWithBorder
+                articles={articles?.slice(0, 6) || []}
+                withImage={true}
+                title="More from this category"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  // Style 1: News style layout
+
+  if (style === 1) {
+    return (
+      <div className="w-full mt-6 px-4 md:px-0">
+        <CategoryHeader
+          title={category}
+          seeMoreText="see more"
+          iconSrc="/icons/right.svg"
+          color="red-700"
+        />
+        <div className="hidden md:grid grid-cols-1 gap-6 mt-3">
+          <ArticleLayoutOne articles={articles || []} withImage={false} />
+        </div>
+        <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
+          <ArticleLayoutOneMobile articles={articles?.slice(0, 4) || []} />
+          <ArticleCard
+            articles={articles?.slice(3, 8) || []}
+            withImage={false}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Style 2: Jewish World style layout
+  if (style === 2) {
+    return (
+      <div className="w-full mt-6 px-4 md:px-0">
+        <CategoryHeader
+          title={category}
+          seeMoreText="see more"
+          iconSrc="/icons/right.svg"
+          color="red-700"
+        />
+        <div className="grid-cols-1 gap-6 mt-3 hidden md:grid">
+          <div className="flex gap-8">
+            <div className="flex-1">
+              <MainCategory article={articles?.[0]} />
+              <section className="grid grid-cols-3 gap-4">
+                {articles?.slice(1, 4).map((article) => (
+                  <ArticleLayout key={article.id} article={article} />
+                ))}
+              </section>
+            </div>
+            <div className="w-72">
+              <AsideMore
+                articles={articles?.slice(4, 8) || []}
+                withImage={true}
+                title="MORE"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
+          <ArticleCard
+            articles={articles?.slice(0, 1) || []}
+            withImage={true}
+          />
+          <ArticleCard
+            articles={articles?.slice(1, 6) || []}
+            withImage={false}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Style 3: Spotlight style layout
+  return (
+    <div className="w-full mt-6">
+      <CategoryHeader
+        title={category}
+        seeMoreText="see more"
+        iconSrc="/icons/right.svg"
+        color="red-700"
+      />
+      <div className="grid-cols-1 gap-6 mt-3 hidden md:grid">
+        <div className="space-y-6">
+          <div className="flex flex-col md:flex-row gap-8">
+            <div className="flex-1">
+              <SpotlightMain article={articles?.[0]} />
+            </div>
+            <div className="w-[40%]">
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                {articles?.slice(0, 2).map((article) => (
+                  <ArticleCard
+                    key={article.id}
+                    articles={[article]}
+                    withImage={true}
+                  />
+                ))}
+              </div>
+              <div>
+                <ArticleCard
+                  articles={articles?.slice(0, 3) || []}
+                  withImage={false}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
+        <ArticleCard articles={articles?.slice(0, 1) || []} withImage={true} />
+        <CategoryLeftImage articles={articles?.slice(0, 2) || []} />
+        <ArticleCard articles={articles?.slice(0, 2) || []} withImage={false} />
+      </div>
+    </div>
+  );
+};
+
 async function Home() {
   const {
     homeFrontal,
@@ -62,7 +253,7 @@ async function Home() {
       (content: HomeMainContent) => content.handlerType === "category"
     ) || [];
 
-  const homeCategoriesArticles = await Promise.all(
+  const categorizedArticles = await Promise.all(
     categoryContentItems.map(async (content: HomeMainContent) => {
       if (content.handlerType === "category") {
         const categoryArticles = await getCategoryArticles(
@@ -70,22 +261,28 @@ async function Home() {
           seenArticleIds
         );
         categoryArticles.forEach((article) => seenArticleIds.add(article.id));
-        return { category: content.category, articles: categoryArticles };
+        return {
+          [content.category.slug]: {
+            title: content.category.name,
+            slug: content.category.slug,
+            articles: categoryArticles,
+          },
+        };
       }
-      return { category: content.category, articles: [] };
+      return {
+        [content.category.slug]: {
+          title: content.category.name,
+          slug: content.category.slug,
+          articles: [],
+        },
+      };
     })
-  );
+  ).then((results) => Object.assign({}, ...results));
+
+  const categories = Object.keys(categorizedArticles);
 
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(generateHomePageSchema()),
-        }}
-      />
-
-      {/* Container */}
+    <main>
       <div className="max-w-7xl mx-auto md:px-4">
         {/* Main content with asides */}
         <div className="flex flex-col md:flex-row gap-6 md:py-8">
@@ -95,12 +292,10 @@ async function Home() {
               {/* Left Aside */}
               <div className="md:col-span-3">
                 <div className="mb-6 hidden md:block">
-                  <CategoryLayout
-                    articles={homeFrontal.slice(0, 5)}
-                    title="Latest News"
+                  <AsideWithBorder
+                    articles={homeFrontal.slice(0, 6)}
                     withImage={false}
-                    hasMore={true}
-                    type="aside-with-border"
+                    title="Latest News"
                   />
                 </div>
               </div>
@@ -123,30 +318,6 @@ async function Home() {
               <div className="md:hidden flex flex-col items-start max-w-[400px]">
                 <MobileLatestNews articles={homeFrontal.slice(1, 4)} />
               </div>
-
-              {/* News Category div */}
-              <div className="md:col-span-9 mt-3 px-4 md:px-0">
-                <CategoryHeader
-                  title="news"
-                  seeMoreText="see more"
-                  iconSrc="/icons/right.svg"
-                  color="red-700"
-                />
-                <div className="hidden md:grid  grid-cols-1 md:grid-cols-1 gap-6 mt-3">
-                  <CategoryLayout
-                    articles={mostRead.slice(0, 4)}
-                    title="news"
-                    withImage={false}
-                    hasMore={true}
-                    type="spotlight-split-aside"
-                  />
-                </div>
-
-                <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
-                  <CategoryLeftImage articles={mostRead.slice(0, 4)} />
-                  <ArticleCard articles={mostRead} withImage={false} />
-                </div>
-              </div>
             </div>
           </div>
 
@@ -154,136 +325,40 @@ async function Home() {
           <div className="md:w-1/4 hidden md:block">
             {/* First Right Aside */}
             <div className="mb-6">
-              <CategoryLayout
-                articles={mostRead}
-                title="Most Talked"
+              <AsideWithBorder
+                articles={mostCommented}
                 withImage={true}
-                hasMore={true}
-                type="aside-with-border"
+                title="Most Talked"
               />
             </div>
 
             {/* Second Right Aside */}
             <div className="mb-6">
-              <CategoryLayout
-                articles={mostRead.slice(0, 3)}
-                title="Editor's Pick"
+              <AsideWithBorder
+                articles={homeFrontal.slice(0, 3)}
                 withImage={true}
-                hasMore={true}
-                type="aside-with-border"
+                title="Editor's Pick"
               />
             </div>
           </div>
         </div>
 
-        {/* Full width sections */}
-        {/* Sports Category */}
-        <div className="w-full mt-6 px-4 md:px-0">
-          <CategoryHeader
-            title="jewish-world"
-            seeMoreText="see more"
-            iconSrc="/icons/right.svg"
-            color="red-700"
-          />
-          <div className="grid-cols-1 gap-6 mt-3 hidden md:grid">
-            <CategoryLayout
-              articles={mostRead.slice(0, 4)}
-              title="jewish-world"
-              withImage={true}
-              hasMore={true}
+        {/* Categories with rotating styles */}
+        {categories.map((category, index) => (
+          <React.Fragment key={category}>
+            <CategorySection
+              style={(index % 3) + 1}
+              category={category}
+              articles={categorizedArticles[category]?.articles}
+              index={index} // Add this prop
             />
-          </div>
-          <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
-            <ArticleCard articles={mostRead.slice(0, 1)} withImage={true} />
-            <ArticleCard articles={mostRead} withImage={false} />
-          </div>
-        </div>
+            {index === 1 && <VideoSection articles={homeFrontal} />}
+          </React.Fragment>
+        ))}
       </div>
 
-      {/* Technology Category - Full Width Background */}
-      <div className="w-full bg-[#157BC3] mt-4">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <CategoryHeader
-            title="top videos"
-            seeMoreText="see more"
-            iconSrc="/icons/right.svg"
-            color="green-500"
-          />
-          <div className="grid grid-cols-1 gap-6 mt-3">
-            <ScrollArticles articles={homeFrontal} />
-          </div>
-        </div>
-      </div>
-
-      {/* Container for remaining sections */}
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Entertainment Category */}
-        <div className="w-full mt-6">
-          <CategoryHeader
-            title="entertainment"
-            seeMoreText="see more"
-            iconSrc="/icons/right.svg"
-            color="red-700"
-          />
-          <div className="grid grid-cols-1 gap-6 mt-3">
-            <CategoryLayout
-              articles={mostRead.slice(0, 4)}
-              title="jewish-world"
-              withImage={true}
-              type="spotlight-split"
-              hasMore={false}
-            />
-          </div>
-        </div>
-      </div>
-
-      <main className="min-h-screen max-w-7xl mx-auto px-4 py-6">
-        <MainArticle article={homeFrontal[0]} />
-
-        <div className="grid grid-cols-12 md:gap-4 mt-6">
-          <section
-            className="col-span-12 lg:col-span-8"
-            aria-label="Featured Articles"
-          >
-            <div className="space-y-4">
-              {homeFrontal?.slice(1).map((article) => (
-                <ArticleItemFullWidth key={article.id} article={article} />
-              ))}
-            </div>
-
-            <div className="space-y-8 mt-8">
-              {homeCategoriesArticles.map(
-                (categoryArticles) =>
-                  categoryArticles && (
-                    <CategorySection
-                      key={categoryArticles.category.slug}
-                      title={categoryArticles.category.name}
-                      link={categoryArticles.category?.slug}
-                      articles={categoryArticles.articles}
-                    />
-                  )
-              )}
-            </div>
-          </section>
-
-          <aside
-            className="hidden lg:block col-span-4"
-            aria-label="Popular Articles"
-          >
-            <div className="sticky top-20 space-y-8">
-              {mostCommented.length > 0 && (
-                <AsideSection articles={mostCommented} title="Most Talked" />
-              )}
-              {mostRead.length > 0 && (
-                <AsideSection articles={mostRead} title="Most Read" />
-              )}
-            </div>
-          </aside>
-        </div>
-
-        <AboutUsHome />
-      </main>
-    </>
+      <AboutUsHome />
+    </main>
   );
 }
 

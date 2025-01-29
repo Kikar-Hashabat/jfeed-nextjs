@@ -5,65 +5,6 @@ import { memo } from "react";
 import Image from "next/image";
 import { MessageSquare } from "lucide-react";
 
-const ArticleMetadata = ({
-  article,
-  className = "",
-}: {
-  article: Article;
-  className?: string;
-}) => {
-  return (
-    <div
-      className={`flex items-center text-xs text-zinc-400 uppercase ${className}`}
-    >
-      <time dateTime={new Date(article.time).toISOString()}>
-        {new Date(article.time).toLocaleDateString("de-DE")}
-      </time>
-      {article.categorySlug && (
-        <>
-          <span className="mx-2">|</span>
-          <span>{article.categorySlug}</span>
-        </>
-      )}
-      {article.comments > 0 && (
-        <span className="flex items-center gap-1 ml-2">
-          {article.comments}
-          <MessageSquare size={14} aria-label="Comments" />
-        </span>
-      )}
-    </div>
-  );
-};
-
-const ArticleImage = ({
-  src,
-  alt = "",
-  priority = false,
-  sizes = "(max-width: 768px) 160px, 260px",
-  aspectRatio = "aspect-[1.74]",
-}: {
-  src?: string;
-  alt?: string;
-  priority?: boolean;
-  sizes?: string;
-  aspectRatio?: string;
-}) => {
-  if (!src) return null;
-
-  return (
-    <div className={`relative ${aspectRatio} w-full overflow-hidden`}>
-      <OptimizedImage
-        src={src}
-        alt={alt}
-        fill
-        sizes={sizes}
-        className="object-cover rounded"
-        priority={priority}
-      />
-    </div>
-  );
-};
-
 const CategoryLayout = ({
   articles,
   title,
@@ -130,6 +71,103 @@ const CategoryLayout = ({
 };
 
 export default CategoryLayout;
+
+export const ArticleCard = ({
+  articles,
+  withImage,
+}: {
+  articles: Article[];
+  withImage: boolean;
+}) => {
+  return (
+    <div className="flex flex-col gap-4">
+      {articles.map((article, index) => (
+        <Link
+          key={index}
+          href={`/${article.categorySlug}/${article.slug}`}
+          className="group"
+        >
+          {withImage && article.image?.src && (
+            <div className="relative aspect-[1.74] w-full overflow-hidden">
+              <OptimizedImage
+                src={article.image?.src || ""}
+                alt={article.image?.alt || ""}
+                fill
+                sizes="(max-width: 768px) 160px, 260px"
+                className="object-cover rounded"
+              />
+            </div>
+          )}
+
+          <h3 className="text-base font-bold">
+            {article.titleShort || article.title}
+          </h3>
+
+          <div className="flex items-center text-xs text-zinc-400 uppercase">
+            <time dateTime={new Date(article.time).toISOString()}>
+              {new Date(article.time).toLocaleDateString("de-DE")}
+            </time>
+            {article.categorySlug && (
+              <>
+                <span className="mx-2">|</span>
+                <span>{article.categorySlug}</span>
+              </>
+            )}
+          </div>
+          <hr className="my-4 border-t border-gray-200" />
+        </Link>
+      ))}
+    </div>
+  );
+};
+
+export const CategoryLeftImage = ({ articles }: { articles: Article[] }) => {
+  return (
+    <div className="md:hidden grid grid-cols-1 gap-6 mt-3">
+      <section className="grid grid-cols-1 gap-4">
+        {articles.slice(0, 6).map((article: Article) => (
+          <Link
+            href={`/${article.categorySlug}/${article.slug}`}
+            key={article.id}
+            className="group flex gap-4 items-start"
+          >
+            <div className="w-32 flex-shrink-0">
+              {article.image?.src && (
+                <div className="relative aspect-[4/3] w-full overflow-hidden">
+                  <OptimizedImage
+                    src={article.image.src}
+                    alt={article.image.alt || ""}
+                    fill
+                    sizes="(max-width: 768px) 160px, 260px"
+                    className="object-cover rounded"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1">
+              <h3 className="text-sm font-semibold leading-tight mb-2">
+                {article.titleShort || article.title}
+              </h3>
+
+              <div className="flex items-center text-xs text-zinc-400 uppercase">
+                <time dateTime={new Date(article.time).toISOString()}>
+                  {new Date(article.time).toLocaleDateString("de-DE")}
+                </time>
+                {article.categorySlug && (
+                  <>
+                    <span className="mx-2">|</span>
+                    <span>{article.categorySlug}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </Link>
+        ))}
+      </section>
+    </div>
+  );
+};
 
 export const CategoryHeader = ({
   title,
@@ -254,7 +292,7 @@ const SpotlightSpilt = ({ articles }: { articles: Article[] }) => {
   );
 };
 
-const SpotlightMain = ({ article }: { article: Article }) => {
+export const SpotlightMain = ({ article }: { article: Article }) => {
   return (
     <article>
       <Link href={`/${article.categorySlug}/${article.slug}`} className="block">
@@ -463,7 +501,7 @@ const AsideMore = memo(
   }
 );
 
-const AsideWithBorder = ({
+export const AsideWithBorder = ({
   articles,
   withImage,
   title,
@@ -560,6 +598,34 @@ const AsideWithBorder = ({
   );
 };
 
+export const MobileLatestNews = ({ articles }: { articles: Article[] }) => {
+  return (
+    <div className="flex flex-col w-full">
+      <div className="flex overflow-hidden gap-2.5 justify-center items-center w-full text-base font-bold leading-none text-red-700 uppercase max-w-[362px] min-h-[35px]">
+        <div className="overflow-hidden gap-2.5 self-stretch pl-4 my-auto border-red-700 border-l-[6px]">
+          last news
+        </div>
+      </div>
+      <div className="flex overflow-x-auto gap-5 items-center mt-4 w-full">
+        {articles.map((item, index) => (
+          <div
+            key={index}
+            className="flex overflow-hidden flex-col justify-center self-stretch p-2.5 my-auto border border-solid border-neutral-200 min-w-[240px] w-[266px]"
+          >
+            <div className="text-base font-semibold text-zinc-800">
+              {item.title}
+            </div>
+            <div className="mt-2.5 text-sm font-medium leading-none uppercase text-zinc-400">
+              {item.time} | {item.categorySlug}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-2.5 mt-4 max-w-full min-h-[35px] w-[362px]" />
+    </div>
+  );
+};
+
 export const MainArticle = ({ article }: { article: Article }) => {
   const categorySlug = article.categorySlug || "general";
 
@@ -573,7 +639,7 @@ export const MainArticle = ({ article }: { article: Article }) => {
               src={article.image?.src || ""}
               alt={article.image?.alt || article.title}
               fill
-              className="object-cover rounded"
+              className="object-cover md:rounded"
               sizes="100vw"
               priority={true}
             />
@@ -582,19 +648,19 @@ export const MainArticle = ({ article }: { article: Article }) => {
           {/* Content Section */}
           <div className="px-4 py-6 md:px-0">
             {/* Main Headline */}
-            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 text-center">
+            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 md:text-center">
               {article.titleShort || article.title}
             </h1>
 
             {/* Subtitle/Description */}
             {article.subTitle && (
-              <p className="text-lg md:text-xl text-gray-600 mb-4 text-center">
+              <p className="text-lg md:text-xl text-gray-600 mb-4 md:text-center">
                 {article.subTitleShort || article.subTitle}
               </p>
             )}
 
             {/* Date and Source */}
-            <div className="flex items-center justify-center gap-2 text-sm text-gray-500 ">
+            <div className="flex items-center md:justify-center gap-2 text-sm text-gray-500 ">
               <time dateTime={new Date(article.time).toISOString()}>
                 {new Date(article.time).toLocaleDateString("de-DE")}
               </time>
@@ -625,11 +691,11 @@ export const ArticleItemFullWidth = memo(
     return (
       <Link
         href={`/${article.categorySlug}/${article.slug}`}
-        className="group block border-b border-gray-200 py-2 hover:bg-gray-50 transition-colors"
+        className="group block py-2 hover:bg-gray-50 transition-colors"
         aria-labelledby={`article-${article.id}-title`}
       >
-        <article className="flex gap-4 items-center">
-          <div className="relative min-w-[160px] md:min-w-[260px] h-[150px] md:h-[150px]">
+        <article className="md:flex gap-4 items-center">
+          <div className="relative min-w-[160px] md:min-w-[260px] h-[200px] md:h-[150px]">
             <OptimizedImage
               src={article.image?.src || ""}
               alt=""
@@ -641,12 +707,6 @@ export const ArticleItemFullWidth = memo(
           </div>
 
           <div className="flex flex-col justify-between flex-grow">
-            {article.roofTitle && (
-              <p className="text-xs md:text-sm text-primary font-medium mb-1">
-                {article.roofTitle}
-              </p>
-            )}
-
             <h2
               id={`article-${article.id}-title`}
               className="text-lg font-semibold group-hover:text-primary transition-colors"

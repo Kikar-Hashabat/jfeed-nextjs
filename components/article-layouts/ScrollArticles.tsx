@@ -1,85 +1,117 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Article } from "@/types";
-import { OptimizedImage } from "../OptimizedImage";
 import Link from "next/link";
+import { Article } from "@/types";
+
+interface ScrollArticlesProps {
+  articles: Article[];
+}
 
 type ScrollDirection = "left" | "right";
 
-const ScrollArticles = ({ articles }: { articles: Article[] }) => {
+const ScrollArticles: React.FC<ScrollArticlesProps> = ({ articles }) => {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [isAnimating, setIsAnimating] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
   // Duplicate articles for infinite scroll
   const duplicatedArticles = [...articles, ...articles, ...articles];
 
-  const scroll = (direction: ScrollDirection) => {
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const scroll = (direction: ScrollDirection): void => {
     if (isAnimating || !scrollContainerRef.current) return;
 
     setIsAnimating(true);
     const container = scrollContainerRef.current;
     const cardWidth = container.children[0]?.clientWidth || 0;
-    const gap = 24; // Gap between cards
+    const gap = 24;
     const scrollAmount = cardWidth + gap;
 
     const maxScroll = cardWidth * articles.length;
     const minScroll = 0;
 
     const currentScrollPosition = container.scrollLeft;
-
-    let newScrollPosition =
+    const newScrollPosition =
       direction === "left"
         ? currentScrollPosition - scrollAmount
         : currentScrollPosition + scrollAmount;
 
-    // Smooth scrolling
     container.scrollTo({
       left: newScrollPosition,
       behavior: "smooth",
     });
 
-    // Adjust position seamlessly for infinite scrolling
     setTimeout(() => {
       if (newScrollPosition >= maxScroll * 2) {
-        // Scrolled too far right
         container.scrollLeft = maxScroll;
       } else if (newScrollPosition <= minScroll) {
-        // Scrolled too far left
         container.scrollLeft = maxScroll;
       }
       setIsAnimating(false);
-    }, 300); // Match duration with the smooth scroll
+    }, 300);
   };
 
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (container) {
       const cardWidth = container.children[0]?.clientWidth || 0;
-      container.scrollLeft = cardWidth * articles.length; // Center the scroll position on mount
+      container.scrollLeft = cardWidth * articles.length;
     }
   }, [articles]);
 
   return (
-    <div className="relative" role="region" aria-label="Scrollable articles">
-      {/* Left Arrow */}
-      <button
-        onClick={() => scroll("left")}
-        disabled={isAnimating}
-        className="absolute -left-20 top-1/2 -translate-y-1/2 z-10 w-12 h-12 
-          flex items-center justify-center bg-[#2185d0] border-4  rounded-full 
-          hover:bg-[#1678c2] transition-colors duration-200
-          disabled:opacity-50 disabled:cursor-not-allowed"
-        type="button"
-        aria-label="Previous"
-      >
-        <ChevronLeft className="w-8 h-8 text-white" />
-      </button>
+    <div
+      className="relative mx-auto max-w-full px-4 md:px-0"
+      role="region"
+      aria-label="Scrollable articles"
+    >
+      {/* Navigation Buttons - Hidden on Mobile */}
+      {!isMobile && (
+        <>
+          <button
+            onClick={() => scroll("left")}
+            disabled={isAnimating}
+            className="hidden md:flex absolute -left-20 top-1/2 -translate-y-1/2 z-10 w-12 h-12 
+              items-center justify-center bg-[#2185d0] border-4 rounded-full 
+              hover:bg-[#1678c2] transition-colors duration-200
+              disabled:opacity-50 disabled:cursor-not-allowed"
+            type="button"
+            aria-label="Previous"
+          >
+            <ChevronLeft className="w-8 h-8 text-white" />
+          </button>
+
+          <button
+            onClick={() => scroll("right")}
+            disabled={isAnimating}
+            className="hidden md:flex absolute -right-20 top-1/2 -translate-y-1/2 z-10 w-12 h-12 
+              items-center justify-center bg-[#2185d0] border-4 rounded-full 
+              hover:bg-[#1678c2] transition-colors duration-200
+              disabled:opacity-50 disabled:cursor-not-allowed"
+            type="button"
+            aria-label="Next"
+          >
+            <ChevronRight className="w-8 h-8 text-white" />
+          </button>
+        </>
+      )}
 
       {/* Articles Container */}
       <div
         ref={scrollContainerRef}
-        className="flex gap-6 overflow-x-hidden scroll-smooth"
+        className="flex gap-4 md:gap-6 overflow-x-auto md:overflow-x-hidden scroll-smooth pb-4 md:pb-0"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
@@ -89,7 +121,7 @@ const ScrollArticles = ({ articles }: { articles: Article[] }) => {
         {duplicatedArticles.map((article, index) => (
           <div
             key={`${article.id}-${index}`}
-            className="flex-none w-[300px] transition-transform duration-300"
+            className="flex-none w-[280px] md:w-[300px] transition-transform duration-300"
           >
             <Link
               href={`/${article.categorySlug}/${article.slug}`}
@@ -97,12 +129,10 @@ const ScrollArticles = ({ articles }: { articles: Article[] }) => {
             >
               <div className="flex flex-col gap-3">
                 <div className="relative aspect-video w-full overflow-hidden rounded-lg">
-                  <OptimizedImage
-                    src={article.image?.src || ""}
+                  <img
+                    src={article.image?.src || "/api/placeholder/300/169"}
                     alt={article.image?.alt || ""}
-                    fill
-                    sizes="300px"
-                    className="object-cover transform transition-transform duration-300 group-hover:scale-105"
+                    className="absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-105"
                   />
                   {/* Play Button Overlay */}
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -137,20 +167,6 @@ const ScrollArticles = ({ articles }: { articles: Article[] }) => {
           </div>
         ))}
       </div>
-
-      {/* Right Arrow */}
-      <button
-        onClick={() => scroll("right")}
-        disabled={isAnimating}
-        className="absolute -right-20 top-1/2 -translate-y-1/2 z-10 w-12 h-12 
-          flex items-center justify-center bg-[#2185d0] border-4 rounded-full 
-          hover:bg-[#1678c2] transition-colors duration-200
-          disabled:opacity-50 disabled:cursor-not-allowed"
-        type="button"
-        aria-label="Next"
-      >
-        <ChevronRight className="w-8 h-8 text-white" />
-      </button>
     </div>
   );
 };

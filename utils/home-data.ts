@@ -74,7 +74,7 @@ export async function getHomeData(options?: {
 export async function getCategoryArticles(
   slug: string,
   existingIds: Set<number>,
-  limit: number = 6
+  limit: number = 8
 ): Promise<Article[]> {
   let allArticles: Article[] = [];
   let page = 0;
