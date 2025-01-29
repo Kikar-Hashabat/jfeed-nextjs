@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Article } from "@/types";
+import Image from "next/image";
 
 interface ScrollArticlesProps {
   articles: Article[];
@@ -129,10 +130,12 @@ const ScrollArticles: React.FC<ScrollArticlesProps> = ({ articles }) => {
             >
               <div className="flex flex-col gap-3">
                 <div className="relative aspect-video w-full overflow-hidden rounded-lg">
-                  <img
+                  <Image
                     src={article.image?.src || "/api/placeholder/300/169"}
                     alt={article.image?.alt || ""}
                     className="absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-105"
+                    width={300}
+                    height={169}
                   />
                   {/* Play Button Overlay */}
                   <div className="absolute inset-0 flex items-center justify-center">

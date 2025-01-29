@@ -4,7 +4,6 @@ import ArticleItemFullWidth from "@/components/article-item/ArticleItemFullWidth
 import Pagination from "@/components/Pagination";
 import Image from "next/image";
 import Link from "next/link";
-import { Facebook, X } from "lucide-react";
 import { Article } from "@/types";
 import ArticleItemMain from "@/components/article-item/ArticleItemMain";
 import { AsideSection } from "@/components/article-item/AsideSection";

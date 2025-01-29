@@ -53,7 +53,7 @@ export const metadata: Metadata = {
 async function Home() {
   const {
     homeFrontal,
-    mostRead,
+    //mostRead,
     mostCommented,
     homeMainContent,
     seenArticleIds,
