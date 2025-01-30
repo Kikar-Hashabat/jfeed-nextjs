@@ -151,7 +151,7 @@ const BaseArticleCard = memo(function BaseArticleCard({
           />
         )}
         <HeadingTag
-          className={`text-lg font-semibold group-hover:text-red-700 transition-colors ${titleClassName}`}
+          className={`text-lg font-semibold group-hover:text-blue-600 transition-colors ${titleClassName}`}
           itemProp="headline"
         >
           {article.titleShort || article.title}
@@ -211,7 +211,7 @@ const SpotlightArticle = memo(function SpotlightArticle({
           />
           <div className="flex flex-col gap-4">
             <h2
-              className="text-2xl md:text-3xl font-bold group-hover:text-red-700 transition-colors"
+              className="text-2xl md:text-3xl font-bold group-hover:text-blue-600 transition-colors"
               itemProp="headline"
             >
               {article.titleShort || article.title}
@@ -262,7 +262,7 @@ const MainFeaturedArticle = memo(function MainFeaturedArticle({
           </div>
           <div className="flex flex-col justify-between flex-[0.333]">
             <div>
-              <h2 className="text-4xl font-bold text-zinc-800 group-hover:text-red-700 transition-colors">
+              <h2 className="text-4xl font-bold text-zinc-800 group-hover:text-blue-600 transition-colors">
                 {article.titleShort || article.title}
               </h2>
             </div>
@@ -399,7 +399,7 @@ const MobileArticleList = memo(function MobileArticleList({
               )}
             </div>
             <div className="flex flex-col justify-between flex-1 py-1">
-              <h3 className="text-base font-semibold group-hover:text-red-700 transition-colors">
+              <h3 className="text-base font-semibold group-hover:text-blue-600 transition-colors">
                 {article.titleShort || article.title}
               </h3>
               <ArticleTime
@@ -722,7 +722,7 @@ const CategoryLayoutThree = memo(function CategoryLayoutThree({
                   </div>
                 )}
                 <div className="flex flex-col gap-2">
-                  <h2 className="text-3xl font-bold text-zinc-800 group-hover:text-red-700 transition-colors">
+                  <h2 className="text-3xl font-bold text-zinc-800 group-hover:text-blue-600 transition-colors">
                     {articles[0].titleShort || articles[0].title}
                   </h2>
                   <div className="text-sm text-zinc-500 uppercase">
@@ -758,7 +758,7 @@ const CategoryLayoutThree = memo(function CategoryLayoutThree({
                   className="group py-4 first:pt-0 last:pb-0"
                 >
                   <article className="flex flex-col gap-2">
-                    <h3 className="text-base font-semibold group-hover:text-red-700 transition-colors">
+                    <h3 className="text-base font-semibold group-hover:text-blue-600 transition-colors">
                       {article.titleShort || article.title}
                     </h3>
                     <div className="text-xs text-zinc-500 uppercase">
@@ -817,7 +817,7 @@ const ArticleItemFullWidth = memo(function ArticleItemFullWidth({
         </div>
         <div className="flex flex-col justify-between flex-grow gap-4">
           <h2
-            className="text-xl md:text-2xl font-bold group-hover:text-red-700 transition-colors"
+            className="text-xl md:text-2xl font-bold group-hover:text-blue-600 transition-colors"
             itemProp="headline"
           >
             {article.titleShort || article.title}
