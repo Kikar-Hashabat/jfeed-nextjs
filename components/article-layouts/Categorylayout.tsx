@@ -749,7 +749,7 @@ const CategoryLayoutThree = memo(function CategoryLayoutThree({
               ))}
             </div>
 
-            {/* Bottom Article List */}
+            {/* Bottom Article Listt */}
             <div className="flex flex-col divide-y divide-neutral-200">
               {articles.slice(3, 6).map((article) => (
                 <Link
