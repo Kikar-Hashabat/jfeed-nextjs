@@ -141,7 +141,7 @@ export default async function CategoryPage({
   });
 
   return (
-    <main className="container mx-auto">
+    <main className="container max-w-7xl mx-auto px-4">
       <Breadcrumbs items={breadcrumbs} />
 
       <hr className="my-3" />

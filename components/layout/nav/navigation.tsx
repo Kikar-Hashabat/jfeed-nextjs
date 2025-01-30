@@ -1,4 +1,3 @@
-// Navigation.tsx
 import { getNavigation } from "@/utils/api";
 import { ClientNav } from "./ClientNav";
 

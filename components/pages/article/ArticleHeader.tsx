@@ -1,10 +1,10 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, Calendar } from "lucide-react";
-import { ArticleAuthor } from "@/types/article";
+import { ArticleAuthor, ArticleImage } from "@/types/article";
 import { formatDateAndTime } from "@/utils/date";
-//import XIcon from "@mui/icons-material/X";
+import { OptimizedImage } from "@/components/OptimizedImage";
+import ShareButtons from "@/components/ShareButtons";
 
 interface ArticleHeaderProps {
   roofTitle: string;
@@ -14,6 +14,8 @@ interface ArticleHeaderProps {
   publishDate: number;
   modifiedDate?: number | null;
   readTime: number;
+  commentsCount?: number | string;
+  articleImage: ArticleImage;
 }
 
 const ArticleHeader: React.FC<ArticleHeaderProps> = ({
@@ -22,85 +24,95 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({
   subTitle,
   author,
   publishDate,
-  modifiedDate,
+  //modifiedDate,
   readTime,
+  commentsCount = 0,
+  articleImage,
 }) => {
   return (
-    <header className="mb-4">
-      {roofTitle && (
-        <div className="text-sm font-medium text-primary bg-roofbg p-3 mb-4 inline-flex">
-          {roofTitle}
+    <div className="flex flex-col">
+      {/* Article Image - Hidden on desktop, shown first on mobile */}
+      <div className="md:hidden mb-4">
+        <div
+          className={`relative aspect-[1.74] w-full overflow-hidden`}
+          role="img"
+          aria-label={articleImage.alt}
+        >
+          <OptimizedImage
+            src={articleImage.src}
+            alt={articleImage.alt}
+            fill
+            sizes="(max-width: 768px) 190px, (max-width: 1024px) 200px, 260px"
+            className="object-cover rounded"
+            priority
+          />
         </div>
-      )}
+      </div>
 
-      <h1 className="font-inter text-4xl md:text-5xl font-bold leading-tight mb-4">
-        {title}
-      </h1>
+      <header className="flex flex-col gap-3.5 max-md:gap-2 hidden md:flex">
+        {roofTitle && (
+          <div className="text-sm font-medium text-primary bg-roofbg p-3 mb-4 w-fit">
+            {roofTitle}
+          </div>
+        )}
 
-      {subTitle && <p className="text-xl text-gray-700 mb-4">{subTitle}</p>}
+        <h1 className="flex-1 text-5xl font-bold leading-[51px] max-md:max-w-full max-md:text-4xl max-md:leading-[50px]">
+          {title}
+        </h1>
 
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 text-sm text-gray-600">
-        <div className="flex items-center gap-4">
+        {subTitle && (
+          <p className="mt-3.5 text-2xl leading-8 max-md:max-w-full">
+            {subTitle}
+          </p>
+        )}
+      </header>
+
+      <div className="flex flex-wrap gap-10 justify-between items-center pb-5 mt-7 w-full border-b border-neutral-200 max-md:max-w-full">
+        <div className="flex gap-4 justify-center items-center self-stretch my-auto min-w-[240px]">
           {author.image && (
             <Image
               src={author.image}
               alt={author.name}
-              title={author.name}
-              width={150}
-              height={150}
-              className="rounded-full border border-gray-500 object-cover h-12 w-12"
+              width={57}
+              height={57}
+              className="object-contain shrink-0 self-stretch my-auto rounded-full aspect-square w-[57px]"
             />
           )}
-          <div>
+          <div className="flex flex-col self-stretch my-auto w-[209px]">
             <Link
               href={author.url}
-              className="font-medium text-gray-900 hover:text-primary transition-colors"
+              className="text-lg font-bold leading-none text-zinc-800 hover:text-primary transition-colors"
             >
               {author.name}
             </Link>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-4 sm:gap-6">
-          <div className="flex items-center gap-1">
-            <Calendar size={16} />
-            <time dateTime={new Date(publishDate).toISOString()}>
-              {formatDateAndTime(publishDate)}
-            </time>
-          </div>
-
-          {modifiedDate && (
-            <div className="flex items-center gap-1">
-              <span className="text-gray-500">Updated:</span>
-              <time dateTime={new Date(modifiedDate).toISOString()}>
-                {formatDateAndTime(modifiedDate)}
+            <div className="flex items-center gap-2 mt-1.5 text-base font-medium text-zinc-400 whitespace-nowrap">
+              <time
+                dateTime={new Date(publishDate).toISOString()}
+                className="uppercase"
+              >
+                {formatDateAndTime(publishDate)}
               </time>
+              <div className="w-px h-[18px] bg-zinc-400" />
+              <span>{readTime} min read</span>
             </div>
-          )}
-
-          <div className="flex items-center gap-1">
-            <Clock size={16} />
-            <span>{readTime} min read</span>
           </div>
-
-          {author.twitter && (
-            <Link
-              href={author.twitter}
-              className="flex items-center gap-1 text-primary hover:text-primary-dark transition-colors"
-              aria-label={`Visit ${author.name}'s Twitter profile`}
-            >
-              <Image
-                src="/icons/x.svg"
-                alt="Twitter icon for author's Twitter profile"
-                width={20}
-                height={20}
-              />
-              <span className="sr-only">Twitter</span>
-            </Link>
-          )}
         </div>
+
+        <ShareButtons title={title} commentsCount={commentsCount} />
       </div>
-    </header>
+
+      {/* Article Image - Shown on desktop, hidden on mobile */}
+      <div className="hidden md:block mt-8">
+        <Image
+          src={articleImage.src}
+          alt={articleImage.alt}
+          width={articleImage.width}
+          height={articleImage.height}
+          className="w-full h-auto object-cover rounded-lg"
+          priority
+        />
+      </div>
+    </div>
   );
 };
 

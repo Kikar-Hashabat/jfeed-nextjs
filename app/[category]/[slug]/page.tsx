@@ -168,7 +168,7 @@ export default async function ArticlePage({
           />
         ))}
 
-      <main className="container">
+      <main className="container max-w-7xl mx-auto px-4">
         <Breadcrumbs items={breadcrumbs} />
         <hr className="my-4" />
 
@@ -182,6 +182,8 @@ export default async function ArticlePage({
               publishDate={article.time}
               modifiedDate={article.lastUpdate}
               readTime={readingTime}
+              articleImage={article.image}
+              commentsCount={article.comments}
             />
 
             <TableOfContents content={article.content.content} />

@@ -49,9 +49,13 @@ export function ClientNav({ items }: ClientNavProps) {
   return (
     <header className="w-full" role="banner">
       <div
-        className={`bg-red-600 ${
-          isScrolled ? "md:hidden" : ""
-        } fixed top-0 w-full z-50 md:relative`}
+        className={`bg-red-600 fixed top-0 w-full z-50 transition-all duration-300 ease-in-out
+          ${
+            isScrolled
+              ? "md:opacity-0 md:pointer-events-none"
+              : "md:relative md:opacity-100"
+          }
+        `}
       >
         <nav className="max-w-full mx-4 px-4" role="navigation">
           <div className="flex items-center justify-between h-16">
@@ -76,6 +80,7 @@ export function ClientNav({ items }: ClientNavProps) {
                 aria-label={isOpen ? "Close menu" : "Open menu"}
                 aria-expanded={isOpen}
                 aria-controls="desktop-menu"
+                className="transition-transform duration-200 hover:scale-105"
               >
                 {isOpen ? (
                   <X className="text-white h-6 w-6" aria-hidden="true" />
@@ -83,7 +88,11 @@ export function ClientNav({ items }: ClientNavProps) {
                   <Menu className="text-white h-6 w-6" aria-hidden="true" />
                 )}
               </button>
-              <Link href="/search" aria-label="Search">
+              <Link
+                href="/search"
+                aria-label="Search"
+                className="transition-transform duration-200 hover:scale-105"
+              >
                 <Search className="text-white h-6 w-6" aria-hidden="true" />
               </Link>
             </div>
@@ -91,7 +100,7 @@ export function ClientNav({ items }: ClientNavProps) {
             <Link
               href="/"
               aria-label="Home"
-              className="flex-1 flex justify-center"
+              className="flex-1 flex justify-center transition-transform duration-200 hover:scale-105"
             >
               <Image
                 src="/logo/logo-white.svg"
@@ -104,10 +113,15 @@ export function ClientNav({ items }: ClientNavProps) {
             </Link>
 
             <div className="hidden md:flex items-center space-x-6 text-white text-sm">
-              <Link href="/contact">Contact us</Link>
+              <Link
+                href="/contact"
+                className="transition-colors duration-200 hover:text-red-100"
+              >
+                Contact us
+              </Link>
               <Link
                 href="/weather"
-                className="flex items-center space-x-2 hover:text-red-100 transition-colors"
+                className="flex items-center space-x-2 transition-colors duration-200 hover:text-red-100"
                 role="complementary"
                 aria-label="Weather"
               >
@@ -142,9 +156,13 @@ export function ClientNav({ items }: ClientNavProps) {
       </div>
 
       <nav
-        className={`shadow-md hidden md:block transition-transform duration-300 ${
-          isScrolled ? "fixed top-0 w-full z-40 bg-red-600" : "bg-white"
-        }`}
+        className={`shadow-md hidden md:block transition-all duration-300 ease-in-out lg:overflow-visible overflow-hidden
+          ${
+            isScrolled
+              ? "fixed top-0 w-full z-40 bg-red-600 transform translate-y-0"
+              : "bg-white transform translate-y-0"
+          }
+        `}
         role="navigation"
         aria-label="Main navigation"
       >
@@ -158,24 +176,54 @@ export function ClientNav({ items }: ClientNavProps) {
                   width={90}
                   height={36}
                   priority
-                  className="transition-opacity duration-300 opacity-100"
+                  className="transition-all duration-300 opacity-100 transform hover:scale-105"
                 />
               )}
             </Link>
-            <div className="flex justify-center space-x-8 flex-1">
+            <div className="hidden lg:flex justify-center space-x-8 flex-1">
               {items.map((item) => (
                 <Link
                   key={item.category.slug}
                   href={`/${item.category.slug}`}
-                  className={`px-4 py-2 rounded-md transition-transform duration-200 ${
-                    isScrolled
-                      ? "text-white hover:bg-red-700"
-                      : "text-gray-800 hover:bg-gray-100"
-                  }`}
+                  className={`px-4 py-2 rounded-md transition-all duration-200
+                    ${
+                      isScrolled
+                        ? "text-white hover:bg-red-700 hover:scale-105"
+                        : "text-gray-800 hover:bg-gray-100 hover:scale-105"
+                    }
+                  `}
                 >
                   {item.category.title}
                 </Link>
               ))}
+            </div>
+            <div className="flex lg:hidden justify-start space-x-2 flex-1">
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className={`px-4 py-2 rounded-md transition-all duration-200
+                  ${
+                    isScrolled
+                      ? "text-white hover:bg-red-700"
+                      : "text-gray-800 hover:bg-gray-100"
+                  }
+                `}
+              >
+                {items.map((item) => (
+                  <Link
+                    key={item.category.slug}
+                    href={`/${item.category.slug}`}
+                    className={`px-4 py-2 rounded-md transition-all duration-200
+                    ${
+                      isScrolled
+                        ? "text-white hover:bg-red-700 hover:scale-105"
+                        : "text-gray-800 hover:bg-gray-100 hover:scale-105"
+                    }
+                  `}
+                  >
+                    {item.category.title}
+                  </Link>
+                ))}
+              </button>
             </div>
           </div>
         </div>
@@ -185,7 +233,7 @@ export function ClientNav({ items }: ClientNavProps) {
         id="mobile-menu"
         className={`
           fixed top-16 bottom-0 left-0 w-[90%] bg-white z-50 md:hidden
-          transform transition-transform duration-300 ease-out
+          transform transition-all duration-300 ease-in-out
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
         `}
         role="dialog"
@@ -200,7 +248,7 @@ export function ClientNav({ items }: ClientNavProps) {
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border rounded-lg"
+                className="w-full pl-10 pr-4 py-2 border rounded-lg transition-colors duration-200 focus:border-red-600 focus:outline-none"
                 aria-label="Search"
               />
               <Search
@@ -215,7 +263,7 @@ export function ClientNav({ items }: ClientNavProps) {
               <Link
                 key={item.category.slug}
                 href={`/${item.category.slug}`}
-                className="block text-gray-800 hover:text-red-600"
+                className="block text-gray-800 transition-colors duration-200 hover:text-red-600"
                 onClick={() => setIsOpen(false)}
               >
                 {item.category.title}
@@ -229,7 +277,7 @@ export function ClientNav({ items }: ClientNavProps) {
         id="desktop-menu"
         className={`
           fixed inset-x-0 top-0 bg-white z-40 hidden md:block
-          transform transition-transform duration-300 ease-out
+          transform transition-all duration-300 ease-in-out
           ${
             isOpen ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
           }
@@ -240,7 +288,7 @@ export function ClientNav({ items }: ClientNavProps) {
         aria-label="Desktop navigation"
       >
         <div className="h-16 bg-red-600" aria-hidden="true" />
-        <div className="container mx-auto px-8 py-8">
+        <div className="container mx-auto px-4 md:px-8 py-8">
           <form
             onSubmit={handleSearch}
             className="max-w-2xl mx-auto mb-8"
@@ -252,7 +300,7 @@ export function ClientNav({ items }: ClientNavProps) {
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border rounded-lg"
+                className="w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:border-red-600 focus:outline-none"
                 aria-label="Search"
               />
               <Search
@@ -262,12 +310,12 @@ export function ClientNav({ items }: ClientNavProps) {
               />
             </div>
           </form>
-          <nav className="grid grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <nav className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 max-w-6xl mx-auto">
             {items.map((item) => (
               <Link
                 key={item.category.slug}
                 href={`/${item.category.slug}`}
-                className="text-xl text-gray-800 hover:text-red-600"
+                className="text-lg md:text-xl text-gray-800 transition-all duration-200 hover:text-red-600 hover:translate-x-1"
                 onClick={() => setIsOpen(false)}
               >
                 {item.category.title}
@@ -279,7 +327,7 @@ export function ClientNav({ items }: ClientNavProps) {
 
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30"
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 transition-opacity duration-300"
           onClick={() => setIsOpen(false)}
           role="presentation"
         />

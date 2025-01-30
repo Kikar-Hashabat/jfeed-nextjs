@@ -2,7 +2,6 @@ import { Article } from "@/types";
 import { OptimizedImage } from "../OptimizedImage";
 import Link from "next/link";
 import React, { memo } from "react";
-import Image from "next/image";
 import { MessageSquare } from "lucide-react";
 
 const formatDate = (time: number, locale = "de-DE") =>
@@ -82,15 +81,15 @@ const ArticleImage = memo(function ArticleImage({
 interface CategoryHeaderProps {
   title: string;
   color?: string;
+  scroll?: boolean;
   seeMoreText?: string;
-  iconSrc?: string;
 }
 
 const CategoryHeader = memo(function CategoryHeader({
   title,
   color = "red-700",
+  scroll = false,
   seeMoreText = "see more",
-  iconSrc = "/icons/right.svg",
 }: CategoryHeaderProps) {
   return (
     <div
@@ -99,24 +98,23 @@ const CategoryHeader = memo(function CategoryHeader({
       aria-level={2}
     >
       <div
-        className={`flex-1 gap-2 pl-4 text-base font-bold text-${color} whitespace-nowrap border-${color} border-l-4`}
+        className={`flex-1 gap-2 pl-2 font-extrabold text-${color} whitespace-nowrap border-${color} border-l-8`}
       >
         {title}
       </div>
-      <div className="flex gap-2 items-center pl-4 text-base font-medium leading-none border-l border-zinc-300">
+      <div
+        className={`flex gap-2 items-center pl-4 text-base font-medium leading-none border-l border-${
+          scroll ? color : "zinc-300"
+        }`}
+      >
         <Link
           href="/news"
-          className={`flex items-center hover:text-${color} transition-colors`}
+          className={`flex items-center ${scroll &&
+            "text-white"} hover:text-${color} transition-colors`}
           aria-label={`See more ${title}`}
         >
           <span className="mr-2">{seeMoreText}</span>
-          <Image
-            src={iconSrc}
-            alt=""
-            width={20}
-            height={20}
-            aria-hidden="true"
-          />
+          <span className={`text-${color}`}> ▶</span>
         </Link>
       </div>
     </div>
@@ -183,7 +181,7 @@ const BaseArticleList = memo(function BaseArticleList({
   showDividers = true,
 }: BaseArticleListProps) {
   return (
-    <div className="flex flex-col gap-4" role="feed" aria-label="Article list">
+    <div className="flex flex-col" role="feed" aria-label="Article list">
       {articles.map((article, index) => (
         <div key={article.id}>
           <BaseArticleCard article={article} withImage={withImage} />
@@ -246,7 +244,7 @@ const MainFeaturedArticle = memo(function MainFeaturedArticle({
   return (
     <article itemScope itemType="http://schema.org/NewsArticle">
       <Link href={`/${article.categorySlug}/${article.slug}`}>
-        <div className="flex flex-col md:flex-row gap-4 p-4 rounded overflow-hidden cursor-pointer bg-white hover:bg-gray-50 transition-colors">
+        <div className="flex flex-col md:flex-row gap-4 rounded overflow-hidden cursor-pointer bg-white hover:bg-gray-50 transition-colors">
           <div className="flex-1 flex flex-col justify-between gap-4 order-2 md:order-1">
             <div>
               <h2
@@ -257,7 +255,11 @@ const MainFeaturedArticle = memo(function MainFeaturedArticle({
               </h2>
               {article.subTitle && (
                 <p className="text-lg md:min-h-[140px]" itemProp="description">
-                  {article.subTitleShort || article.subTitle}
+                  {article.subTitleShort ||
+                    article.subTitle
+                      .split(" ")
+                      .splice(0, 30)
+                      .join(" ")}
                 </p>
               )}
             </div>
@@ -265,12 +267,14 @@ const MainFeaturedArticle = memo(function MainFeaturedArticle({
               <ArticleMetadata article={article} />
             </div>
           </div>
-          <div className="relative w-full md:w-[60%] aspect-video md:h-[400px] order-1 md:order-2">
+          <div className="relative w-full md:w-[66%] aspect-video md:h-[400px] order-1 md:order-2">
             <ArticleImage
               src={article.image?.src || ""}
               alt={article.image?.alt || article.title}
               priority
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 60vw"
+              aspectRatio="" // Remove the default aspect ratio
+              className="h-full" // Add height full
             />
           </div>
         </div>
@@ -294,11 +298,12 @@ const AsideMore = memo(function AsideMore({
 }: AsideMoreProps) {
   return (
     <section className={`flex flex-col gap-4 ${className}`} aria-label={title}>
-      <div className="flex items-center gap-2">
-        <div className="w-2 h-6 bg-primary"></div>
-        <h2 className="uppercase font-bold">{title}</h2>
+      <div
+        className={`flex-1 gap-2 pl-2 font-extrabold text-red-700 whitespace-nowrap border-red-700 border-l-8`}
+      >
+        {title}
       </div>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1">
         {articles.slice(0, 4).map((article, index) => (
           <div key={article.id}>
             <BaseArticleCard
@@ -322,18 +327,22 @@ const AsideMore = memo(function AsideMore({
 interface AsideWithBorderProps {
   articles: Article[];
   withImage?: boolean;
+  withAllImages?: boolean;
   title: string;
 }
 
 const AsideWithBorder = memo(function AsideWithBorder({
   articles,
   withImage = true,
+  withAllImages = false,
   title,
 }: AsideWithBorderProps) {
   return (
     <section className="flex flex-col max-w-[285px] mb-4" aria-label={title}>
-      <div className="flex gap-2 items-center pb-4 w-full text-base font-bold text-red-700 uppercase">
-        <div className="pl-4 border-red-700 border-l-4">{title}</div>
+      <div
+        className={`flex-1 gap-2 pl-2 font-extrabold text-red-700 whitespace-nowrap border-red-700 border-l-8 mb-3`}
+      >
+        {title}
       </div>
       <ul
         className="flex flex-col gap-4 p-4 w-full border border-neutral-200 rounded"
@@ -343,7 +352,7 @@ const AsideWithBorder = memo(function AsideWithBorder({
           <li key={article.id}>
             <BaseArticleCard
               article={article}
-              withImage={withImage && index === 0}
+              withImage={withAllImages || (withImage && index === 0)}
               className="w-full"
               headingLevel="h3"
             />
@@ -360,14 +369,7 @@ const AsideWithBorder = memo(function AsideWithBorder({
               className="flex items-center hover:text-red-700 transition-colors"
               aria-label="See more articles"
             >
-              <span className="mr-2">see more</span>
-              <Image
-                src="/icons/right.svg"
-                alt=""
-                width={25}
-                height={25}
-                aria-hidden="true"
-              />
+              <span className="mr-2">see more</span>▶
             </Link>
           </li>
         )}
@@ -390,20 +392,21 @@ const MobileArticleList = memo(function MobileArticleList({
           <Link
             href={`/${article.categorySlug}/${article.slug}`}
             key={article.id}
-            className="group flex gap-4 items-start"
+            className="group flex gap-4 items-start min-h-[100px]"
           >
-            <div className="w-32 flex-shrink-0">
+            <div className="w-[130px] h-[100px] flex-shrink-0">
               {article.image?.src && (
                 <ArticleImage
                   src={article.image.src}
                   alt={article.image.alt || ""}
-                  aspectRatio="aspect-[4/3]"
-                  sizes="(max-width: 768px) 128px"
+                  aspectRatio="aspect-square"
+                  sizes="(max-width: 768px) 100px"
+                  className="h-full"
                 />
               )}
             </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-4 group-hover:text-red-700 transition-colors">
+            <div className="flex flex-col justify-between flex-1 py-1">
+              <h3 className="text-base font-semibold group-hover:text-red-700 transition-colors">
                 {article.titleShort || article.title}
               </h3>
               <ArticleTime
@@ -530,6 +533,7 @@ const CategoryLayoutZero = memo(function CategoryLayoutZero({
 }: CategoryLayoutProps) {
   return (
     <div className="max-w-7xl mx-auto">
+      CategoryLayoutZero
       <div className="flex flex-col md:flex-row gap-4 lg:gap-6">
         <div className="flex-1">
           <CategoryHeader {...commonProps} />
@@ -574,33 +578,58 @@ const CategoryLayoutOne = memo(function CategoryLayoutOne({
   commonProps,
 }: CategoryLayoutProps) {
   return (
-    <>
-      <CategoryHeader {...commonProps} />
-      <div className="hidden md:block">
-        <div className="flex gap-4 lg:gap-8 mt-4">
-          <div className="flex-1">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {articles.slice(0, 4).map((article) => (
-                <BaseArticleCard
-                  key={article.id}
-                  article={article}
-                  withImage
-                  headingLevel="h3"
+    <div>
+      <div className="flex gap-4 lg:gap-8">
+        <div className="flex-1">
+          <CategoryHeader {...commonProps} />
+          <div className="hidden md:block">
+            <div className="mt-4 flex gap-4">
+              <div className="flex-1">
+                <div className="grid grid-cols-2 gap-4">
+                  {articles.slice(0, 2).map((article) => (
+                    <BaseArticleCard
+                      key={article.id}
+                      article={article}
+                      withImage
+                      headingLevel="h3"
+                    />
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  {articles.slice(2, 4).map((article) => (
+                    <BaseArticleCard
+                      key={article.id}
+                      article={article}
+                      withImage
+                      headingLevel="h3"
+                    />
+                  ))}
+                </div>
+              </div>
+              <aside className="w-72">
+                <AsideMore
+                  articles={articles.slice(4, 8)}
+                  title="MORE"
+                  withImage={false}
                 />
-              ))}
+              </aside>
             </div>
           </div>
-          <aside className="hidden md:block w-72">
-            <AsideMore
-              articles={articles.slice(4, 8)}
-              title="MORE"
-              withImage={true}
-            />
-          </aside>
         </div>
+
+        <section
+          aria-label="Editor's selected articles"
+          className="hidden xl:block mt-4"
+        >
+          <AsideWithBorder
+            articles={articles.slice(5, 8)}
+            withImage={true}
+            title="Editor's Pick"
+          />
+        </section>
       </div>
       <MobileArticleList articles={articles} />
-    </>
+    </div>
   );
 });
 
@@ -612,7 +641,7 @@ const CategoryLayoutTwo = memo(function CategoryLayoutTwo({
     <>
       <CategoryHeader {...commonProps} />
       <div className="hidden md:grid grid-cols-1 gap-4 mt-4">
-        <div className="xl:flex gap-4 lg:gap-8">
+        <div className="xl:flex gap-4 lg:gap-6">
           <div className="flex-1">
             <MainFeaturedArticle article={articles[0]} />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
@@ -630,7 +659,7 @@ const CategoryLayoutTwo = memo(function CategoryLayoutTwo({
             <AsideMore
               articles={articles.slice(4, 8)}
               title="MORE"
-              withImage={false}
+              withImage={true}
             />
           </div>
         </div>
@@ -661,12 +690,13 @@ const CategoryLayoutThree = memo(function CategoryLayoutThree({
             <div className="flex-1">
               <SpotlightArticle article={articles[0]} />
             </div>
-            <div className="md:w-[40%]">
+            <div className="md:w-[50%]">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 {articles.slice(1, 3).map((article) => (
                   <BaseArticleCard
                     key={article.id}
                     article={article}
+                    imageAspectRatio="aspect-[1.64]"
                     withImage
                     headingLevel="h3"
                   />
@@ -704,7 +734,7 @@ const ArticleItemFullWidth = memo(function ArticleItemFullWidth({
       className="group block py-4 hover:bg-gray-50 transition-colors"
     >
       <article
-        className="md:flex gap-4 items-center"
+        className="sm:flex gap-4 items-center"
         itemScope
         itemType="http://schema.org/NewsArticle"
       >

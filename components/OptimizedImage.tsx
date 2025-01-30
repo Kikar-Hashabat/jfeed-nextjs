@@ -160,13 +160,11 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   height,
   preset,
 }) => {
-  // Handle preset sizes
   let finalWidth = width;
   let finalHeight = height;
 
   if (preset) {
     if (preset.includes(".")) {
-      // Handle nested square presets
       const [category, size] = preset.split(".");
       if (
         category === "square" &&
@@ -178,7 +176,6 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
         finalHeight = presetSize.height;
       }
     } else {
-      // Handle regular presets
       const presetSize = ImageSizes[
         preset as keyof typeof ImageSizes
       ] as ImagePresetSizes;
@@ -188,7 +185,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
       }
     }
   }
-  const shouldPrioritize = priority || isHero;
+
   const processedSrc = getCloudflareFormatImageUrl(src, {
     ...cloudflareOptions,
     ...(finalWidth && { width: finalWidth }),
@@ -196,17 +193,24 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   });
 
   return (
-    <Image
-      src={processedSrc || ""}
-      alt={alt}
-      title={alt}
-      fill={fill}
-      className={className}
-      sizes={sizes}
-      priority={shouldPrioritize}
-      quality={85}
-      loading={shouldPrioritize ? "eager" : "lazy"}
-      {...(!fill && width && height && { width, height })}
-    />
+    <div
+      className={`relative overflow-hidden group ${
+        fill ? "w-full h-full" : "inline-block"
+      }`}
+      style={{ width: finalWidth, height: finalHeight }}
+    >
+      <Image
+        src={processedSrc || ""}
+        alt={alt}
+        title={alt}
+        fill={fill}
+        className={`transition-transform duration-[1200ms] ease-out group-hover:scale-110 ${className}`}
+        sizes={sizes}
+        priority={priority || isHero}
+        quality={85}
+        loading={priority || isHero ? "eager" : "lazy"}
+        {...(!fill && width && height && { width, height })}
+      />
+    </div>
   );
 };

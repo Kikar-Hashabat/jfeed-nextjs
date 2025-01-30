@@ -115,7 +115,7 @@ async function Home() {
                 >
                   <div className="mb-4 lg:mb-6 hidden md:block">
                     <AsideWithBorder
-                      articles={homeFrontal.slice(0, 6)}
+                      articles={homeFrontal.slice(2, 7)}
                       withImage={false}
                       title="Latest News"
                     />
@@ -157,6 +157,7 @@ async function Home() {
                 <AsideWithBorder
                   articles={mostCommented}
                   withImage={true}
+                  withAllImages={true}
                   title="Most Talked"
                 />
               </section>
@@ -195,8 +196,8 @@ async function Home() {
                       <CategoryHeader
                         title="top videos"
                         seeMoreText="see more"
-                        iconSrc="/icons/right.svg"
                         color="green-500"
+                        scroll
                       />
                       <div className="grid grid-cols-1 gap-4 lg:gap-6 mt-4">
                         <ScrollArticles articles={homeFrontal} />
