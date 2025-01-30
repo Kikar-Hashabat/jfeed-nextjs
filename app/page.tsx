@@ -190,13 +190,13 @@ async function Home() {
 
               {/* Video Section after second category - full width */}
               {index === 1 && (
-                <div className="w-full bg-[#157BC3] mt-4">
+                <div className="w-full bg-blue-700 mt-4">
                   <section className="py-6" aria-label="Featured videos">
                     <div className="max-w-7xl mx-auto px-4">
                       <CategoryHeader
                         title="top videos"
                         seeMoreText="see more"
-                        color="green-500"
+                        color="white"
                         scroll
                       />
                       <div className="grid grid-cols-1 gap-4 lg:gap-6 mt-4">

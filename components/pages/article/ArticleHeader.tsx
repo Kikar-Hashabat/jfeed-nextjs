@@ -49,7 +49,7 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({
         </div>
       </div>
 
-      <header className="flex flex-col gap-3.5 max-md:gap-2 hidden md:flex">
+      <header className="flex-col gap-3.5 max-md:gap-2 hidden md:flex">
         {roofTitle && (
           <div className="text-sm font-medium text-primary bg-roofbg p-3 mb-4 w-fit">
             {roofTitle}

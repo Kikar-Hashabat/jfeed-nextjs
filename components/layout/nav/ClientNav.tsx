@@ -122,7 +122,6 @@ export function ClientNav({ items }: ClientNavProps) {
               <Link
                 href="/weather"
                 className="flex items-center space-x-2 transition-colors duration-200 hover:text-red-100"
-                role="complementary"
                 aria-label="Weather"
               >
                 <div className="flex items-center">
@@ -131,6 +130,8 @@ export function ClientNav({ items }: ClientNavProps) {
                     viewBox="0 0 24 24"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                    role="img"
                   >
                     <path
                       d="M12 3V5M5.31412 5.31412L6.728 6.728M3 12H5M5.31412 18.6859L6.728 17.272M12 19V21M18.6859 18.6859L17.272 17.272M21 12H19M18.6859 5.31412L17.272 6.728"
