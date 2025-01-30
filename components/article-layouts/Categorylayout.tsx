@@ -864,7 +864,7 @@ const MainArticle = memo(function MainArticle({ article }: MainArticleProps) {
           </div>
           <div className="relative w-full md:p-6 mt-4">
             <h1
-              className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 md:text-center"
+              className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 md:text-center hover:text-blue-600 transition-colors"
               itemProp="headline"
             >
               {article.titleShort || article.title}
